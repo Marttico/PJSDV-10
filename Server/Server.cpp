@@ -171,7 +171,9 @@ int Server::readServer(){
                 client_socket[i] = 0;
             }
             else{
-                printf("%s",buffer);
+                //printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
+                printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],((buffer[1]&0x03) << 8) + buffer[2],buffer[3],buffer[4]);
+                //printf("%s",buffer);
             }
         }
     }
