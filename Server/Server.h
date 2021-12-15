@@ -16,15 +16,17 @@ class Server
 {
     public:
         Server(int, int);
-        void loop();
-        int writeServer(uint8_t);
+        bool setUp(int, int);
+        int writeServer(char);
         uint64_t readServer();
     private:
-        int master_socket, addrlen, new_socket , max_clients, activity, i, valread , sd, port;
+        int master_socket, addrlen, new_socket, max_clients, activity, i, valread, sd, port;
+
+        int valSend;
         struct timeval tv;
         vector<int> client_socket;
         int opt = true;
-        int max_sd; 
+        int max_sd;
         struct sockaddr_in address;
         char buffer[1025];
         fd_set readfds;
