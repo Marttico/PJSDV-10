@@ -111,42 +111,6 @@ void Server::loop()
             }
         }
     }
-        
-    //else its some IO operation on some other socket
-    /*for (i = 0; i < max_clients; i++)
-    {
-        sd = client_socket[i];
-            
-        if (FD_ISSET( sd , &readfds))
-        {
-            //Check if it was for closing , and also read the
-            //incoming message
-            char buffer[1025] = {'\0'};
-            if ((valread = read( sd , buffer, 1024)) == 0)
-            {
-                //Somebody disconnected , get his details and print
-                getpeername(sd , (struct sockaddr*)&address , \
-                    (socklen_t*)&addrlen);
-                printf("Host disconnected , ip %s , port %d \n" ,
-                    inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
-                    
-                //Close the socket and mark as 0 in list for reuse
-                close( sd );
-                
-                client_socket[i] = 0;
-            }
-                
-            //Echo back the message that came in
-            else
-            {
-                //set the string terminating NULL byte on the end
-                //of the data read
-                printf("ID %i: Valread:%i Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,valread,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
-                buffer[valread] = '\0';
-                
-            }
-        }
-    }*/
 }
 
 uint64_t Server::readServer(){
@@ -169,11 +133,11 @@ uint64_t Server::readServer(){
                 close( sd );
                 
                 client_socket[i] = 0;
+                return 0;
             }
             else{
-                //printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
                 printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],((buffer[1]&0x03) << 8) + buffer[2],buffer[3],buffer[4]);
-                //printf("%s",buffer);
+                return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32);
             }
         }
     }
