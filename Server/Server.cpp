@@ -179,7 +179,6 @@ uint64_t Server::readServer(){
             }
         }
     }
-
 }
 
 int Server::writeServer(uint8_t msg){
@@ -189,8 +188,13 @@ int Server::writeServer(uint8_t msg){
             
         if (FD_ISSET( sd , &readfds))
         {
-            char MessageBuffer[2] = {msg,'\0'};
-            return send(sd , MessageBuffer, strlen(MessageBuffer),0);
+            //char MessageBuffer[2] = {msg,'\0'};
+            char MessageBuffer[2] = "\r";
+            MessageBuffer[0] = msg;
+            
+            int writeValue;
+            writeValue = send(sd , MessageBuffer, strlen(MessageBuffer),0);
+            return writeValue;
         }
     }
 

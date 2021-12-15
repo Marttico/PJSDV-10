@@ -16,20 +16,11 @@
     
 int main(int argc , char *argv[])
 {
+    
+    
     Server s1(1, 8080);
     Server bed(1, 8081);
     char msg;
-    if (argc >1)
-    {
-        if (!strcmp(argv[1], "1"))
-        {
-            msg = 0b11111111;
-        }
-        else
-        {
-            msg = 0b00000000;
-        }
-    }
     while(TRUE)
     {
 
@@ -37,9 +28,8 @@ int main(int argc , char *argv[])
         bed.loop();
         s1.readServer();
         bed.readServer();
-        s1.writeServer(msg);
-        bed.writeServer(msg);
-        //cout<<"on line main: "<<__LINE__<<endl;
+        s1.writeServer('m');
+        bed.writeServer('d');
     }
         
     return 0;
