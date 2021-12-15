@@ -15,7 +15,7 @@
 char ssid[] = "PiCo";     //  your network SSID (name)
 char pass[] = "13371337";  // your network password
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
-int ledValue = 0;
+uint8_t ledValue = 0x00;
 
 //WiFiServer wifiServer(8080);
 const char* host = "192.168.2.1";
@@ -138,13 +138,15 @@ void loop() {
         uint8_t Analog0_L = Analog0;
         uint8_t Analog1_H = Analog1 >> 8;
         uint8_t Analog1_L = Analog1;*/
-        
+        ledValue++;
+        Serial.print("ledValue: ");
+        Serial.println(ledValue);
         //Test Code without I2C
-        uint8_t InputOutput = 100;
-        uint8_t Analog0_H = 101;
-        uint8_t Analog0_L = 102;
-        uint8_t Analog1_H = 103;
-        uint8_t Analog1_L = 104;
+        uint8_t InputOutput = ledValue;
+        uint8_t Analog0_H = 'a';
+        uint8_t Analog0_L = 'b';
+        uint8_t Analog1_H = 'c';
+        uint8_t Analog1_L = 'd';
         
         //Convert all ints to chars
         char InputOutputc = int(InputOutput);
