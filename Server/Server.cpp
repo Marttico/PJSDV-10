@@ -169,33 +169,25 @@ uint64_t Server::readServer(){
                 close( sd );
                 
                 client_socket[i] = 0;
-                return 0;
             }
             else{
                 //printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
                 printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],((buffer[1]&0x03) << 8) + buffer[2],buffer[3],buffer[4]);
-                return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32);
                 //printf("%s",buffer);
             }
         }
     }
+
 }
 
-int Server::writeServer(uint8_t msg){
+void Server::writeServer(uint8_t msg){
     for (i = 0; i < max_clients; i++)
     {
         sd = client_socket[i];
-            
         if (FD_ISSET( sd , &readfds))
         {
-            //char MessageBuffer[2] = {msg,'\0'};
-            char MessageBuffer[2] = "\r";
-            MessageBuffer[0] = msg;
-            
-            int writeValue;
-            writeValue = send(sd , MessageBuffer, strlen(MessageBuffer),0);
-            return writeValue;
+            char MessageBuffer[2] = {msg,'\0'};
+            send(sd , MessageBuffer, strlen(MessageBuffer),0);
         }
     }
-
 }

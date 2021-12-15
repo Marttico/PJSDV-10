@@ -131,20 +131,20 @@ void loop() {
       while(client.connected()){
         char sendBuf[6] = {'\0'};
         //Get Values I2C
-        uint8_t InputOutput = readOutput();
+        /*uint8_t InputOutput = readOutput();
         uint16_t Analog0 = readAnalog(0);
         uint16_t Analog1 = readAnalog(1);
         uint8_t Analog0_H = Analog0 >> 8;
         uint8_t Analog0_L = Analog0;
         uint8_t Analog1_H = Analog1 >> 8;
-        uint8_t Analog1_L = Analog1;
+        uint8_t Analog1_L = Analog1;*/
         
         //Test Code without I2C
-        /*uint8_t InputOutput = 100;
+        uint8_t InputOutput = 100;
         uint8_t Analog0_H = 101;
         uint8_t Analog0_L = 102;
         uint8_t Analog1_H = 103;
-        uint8_t Analog1_L = 104;*/
+        uint8_t Analog1_L = 104;
         
         //Convert all ints to chars
         char InputOutputc = int(InputOutput);
