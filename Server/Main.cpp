@@ -21,14 +21,14 @@ int main(int argc , char *argv[])
     char msg;
     if (argc >1)
     {
-    if (!strcmp(argv[1], "1"))
-    {
-        msg = 0b11111111;
-    }
-    else
-    {
-        msg = 0b00000000;
-    }
+        if (!strcmp(argv[1], "1"))
+        {
+            msg = 0b11111111;
+        }
+        else
+        {
+            msg = 0b00000000;
+        }
     }
     while(TRUE)
     {
