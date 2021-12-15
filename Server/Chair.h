@@ -20,6 +20,7 @@ public:
 private:
     Server sv;
     bool buttonPressed;
+    bool led;
     uint16_t drukSensor;
 	bool trilStand;
     bool trilPermissie;

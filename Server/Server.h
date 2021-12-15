@@ -18,7 +18,7 @@ class Server
         Server(int, int);
         void loop();
         int writeServer(uint8_t);
-        int readServer();
+        uint64_t readServer();
     private:
         int master_socket, addrlen, new_socket , max_clients, activity, i, valread , sd, port;
         struct timeval tv;
