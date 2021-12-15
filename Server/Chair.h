@@ -10,11 +10,15 @@ class Chair {
 public:
 	Chair(int, bool);
 	~Chair();
-    void updateVariables(uint8_t,uint16_t);
-    void Loop();
+    void loop();
+    void zetLed(bool);
+    void zetTril(bool);
+    void zetTrilPermissie(bool);
+    bool checkTril() const;
+    uint16_t checkDrukSensor() const;
+    bool checkKnop() const;
 private:
     Server sv;
-    int socketID;
     bool buttonPressed;
     uint16_t drukSensor;
 	bool trilStand;
