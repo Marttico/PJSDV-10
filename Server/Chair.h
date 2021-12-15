@@ -11,6 +11,7 @@ public:
 	Chair(int, bool);
 	~Chair();
     void loop();
+    void behaviour();
     void zetLed(bool);
     void zetTril(bool);
     void zetTrilPermissie(bool);

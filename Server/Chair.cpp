@@ -11,9 +11,28 @@ Chair::Chair(int port,bool trilPerms):sv(1,port),led(false),trilPermissie(trilPe
 }
 void Chair::loop(){
     sv.loop();
-    sv.readServer();
-    sv.writeServer();
+    uint64_t temp;
+    temp = sv.readServer();
+    //sync output to variables
+    buttonPressed = (temp & 0x01);
+    drukSensor = (temp >> 8) & 0x03FF;
+
+    behaviour();
+    
+    //Maak bericht aan
+    uint8_t msg = 0;
+    msg = led << 4 || trilStand << 5;
+    sv.writeServer(msg);
 }
+
+void Chair::behaviour(){
+    if(drukSensor > 600){
+        zetTril(true);
+    }else{
+        zetTril(false);
+    }
+}
+
 void Chair::zetLed(bool i){
     led = i;
 }
