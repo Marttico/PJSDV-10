@@ -1,11 +1,11 @@
-#include "Chair.h"
+
 #include <iostream>
 #include <string>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <string> 
-
+#include "Chair.h"
 Chair::Chair(int port,bool trilPerms):sv(1,port),trilPermissie(trilPerms),buttonPressed(false),trilStand(false),drukSensor(0){
 
 }
@@ -21,14 +21,14 @@ void Chair::zetTril(bool i){
 void Chair::zetTrilPermissie(bool){
 
 }
-bool checkTril() const{
+bool Chair::checkTril() const{
     return trilStand;
 }
 
-uint16_t checkDrukSensor() const{
+uint16_t Chair::checkDrukSensor() const{
     return drukSensor;
 }
 
-bool checkKnop() const{
+bool Chair::checkKnop() const{
     return buttonPressed;
 }
