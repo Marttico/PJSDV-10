@@ -1,4 +1,4 @@
-/*
+ /*
   ESP8266 Blink by Simon Peter
   Blink the blue LED on the ESP-01 module
   This example code is in the public domain
@@ -12,14 +12,13 @@
 #define I2C_SDL    D1
 #define I2C_SDA    D2
 
-char ssid[] = "PiCo";     //  your network SSID (name)
-char pass[] = "13371337";  // your network password
+const char* ssid = "PiCo";     //  your network SSID (name)
+const char* password = "13371337";  // your network password
+
+WiFiServer wifiServer(8080);
+
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 uint8_t ledValue = 0x00;
-
-//WiFiServer wifiServer(8080);
-const char* host = "192.168.2.1";
-const int port = 8080;
 
 void writeOutput(bool b,int offset){
     //offset = 1 for the lil light :)
@@ -41,7 +40,7 @@ void writeOutput(bool b,int offset){
 void writeOutput(uint8_t input){
     Wire.beginTransmission(0x38); 
     Wire.write(byte(0x01));
-    Wire.write(byte(input));
+    Wire.write(byte(input &0xF0));
     Wire.endTransmission();
 }
 
@@ -88,134 +87,78 @@ void hotPluggableFunction(){
 }
 
 void setup() {
-  pinMode(D5, OUTPUT);
-  Wire.begin();
-  pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-  Serial.begin(9600);
-  while (!Serial);
-  //WiFi.printDiag(Serial);
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println("WiFi shield not present");
-    while (true);
+    pinMode(D5, OUTPUT);
+    Wire.begin();
+    pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
+    Serial.begin(115200);
+    delay(1000);
+   
+    WiFi.begin(ssid, password);
+ 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting..");
   }
  
-  // attempt to connect to Wifi network:
-  while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network:
-    status = WiFi.begin(ssid, pass);
-    // wait 6 seconds for connection:
-    delay(10000);
-  }
-  Serial.print("You're connected to the network");
+  Serial.print("Connected to WiFi. IP:");
+  Serial.println(WiFi.localIP());
+ 
+  wifiServer.begin();
 }
 
 // the loop function runs over and over again forever
 void loop() {
-  static bool wait = false;
-  Serial.print("connecting to ");
-  Serial.print(host);
-  Serial.print(':');
-  Serial.println(port);
-  WiFiClient client;
-  if (!client.connect(host, port)) {
-      Serial.println("connection failed");
-      delay(5000);
-      return;
-  }
+  WiFiClient client = wifiServer.available();
+  hotPluggableFunction();
+  if (client) {
+    while(client.connected()){
+      char buffer[64] = {0};
+      int index = 0;
+      while (client.available()>0) {
+        char c = client.read();
+        //strncat(buffer,&c,1);
+        buffer[index] = c;
+        index++;
+      }
+      buffer[index] = '\0';
+      if(buffer[0] == 1){
+        //Read Frame
+        char InputOutput = readOutput();
+        //uint16_t Analog0 = readAnalog(0);
+        //uint16_t Analog1 = readAnalog(1);
+        uint16_t Analog0 = 0;
+        uint16_t Analog1 = 0;
+        char Analog0_H = Analog0 >> 8;
+        char Analog0_L = Analog0;
+        char Analog1_H = Analog1 >> 8;
+        char Analog1_L = Analog1;
 
-  // This will send a string to the server
-  Serial.println("sending data to server");
-  if (client.connected()) {
-      while(client.connected()){
-        char sendBuf[6] = {'\0'};
-        //Get Values I2C
-        uint8_t InputOutput = readOutput();
-        uint16_t Analog0 = readAnalog(0);
-        uint16_t Analog1 = readAnalog(1);
-        uint8_t Analog0_H = Analog0 >> 8;
-        uint8_t Analog0_L = Analog0;
-        uint8_t Analog1_H = Analog1 >> 8;
-        uint8_t Analog1_L = Analog1;
+
+
         
         //Test Code without I2C
-        /*ledValue++;
-        Serial.print("ledValue: ");
+        /*Serial.print("ledValue: ");
         Serial.println(ledValue);
-        uint8_t InputOutput = ledValue;
-        uint8_t Analog0_H = 'a';
-        uint8_t Analog0_L = 'b';
-        uint8_t Analog1_H = 'c';
-        uint8_t Analog1_L = 'd';*/
-        
-        //Convert all ints to chars
-        char InputOutputc = int(InputOutput);
-        char Analog0_Hc = int(Analog0_H);
-        char Analog0_Lc = int(Analog0_L);
-        char Analog1_Hc = int(Analog1_H);
-        char Analog1_Lc = int(Analog1_L);
-        
+        char InputOutput = ledValue;
+        char Analog0_H = 'a';
+        char Analog0_L = 'b';
+        char Analog1_H = 'c';
+        char Analog1_L = 'd';*/
         //Append Values to Send Buffer
-        strncat(sendBuf,&InputOutputc,1);
-        strncat(sendBuf,&Analog0_Hc,1);
-        strncat(sendBuf,&Analog0_Lc,1);
-        strncat(sendBuf,&Analog1_Hc,1);
-        strncat(sendBuf,&Analog1_Lc,1);
-        Serial.println(sendBuf);
-        //Send ProtocolVariables
-        client.print(sendBuf);
-        
-        
-        delay(100);
-        
-        //Maybe add an extra byte to set Servo Value
-        char buf[2] = {'\0'};
-        char ch;
-        //Collect buffer to buf array
-        while (client.available()) {
-            ch = static_cast<char>(client.read());
-            strncat(buf,&ch,1);
-        }
-        
-        //Set I2C to first byte of Buffer.
-        writeOutput(uint8_t(buf[0]));
+        char msg[] = {InputOutput,Analog0_H,Analog0_L,Analog1_H,Analog1_L,'\r','\0'};
+        client.write(msg);
+        //Serial.println(sendBuf);
 
-        //Print Buffer to serial
-        Serial.println(int(buf[0]));
+
         
-        //Inside loop for debugging purpose (hot plugging wemos module into i/o board). 
-        hotPluggableFunction();
+      }else if(buffer[0] == 2){
+        Serial.println();
+        writeOutput(buffer[1]);
       }
+      //delay(100);
+    }
+    
   }
-
-  // wait for data to be available
-  unsigned long timeout = millis();
-  bool whileloop = true;
-  while (client.available() == 0 && whileloop) {
-      if (millis() - timeout > 5000) {
-          Serial.println(">>> Client Timeout !");
-          client.stop();
-          delay(3000);
-          //return;
-          whileloop = false;
-      }
-  }
-  
-  Serial.println("receiving from remote server");
-  // not testing 'client.connected()' since we do not need to send data here
-  while (client.available()) {
-      char ch = static_cast<char>(client.read());
-      Serial.print(ch);
-  }
-
-  //Close the connection
-  Serial.println();
-  Serial.println("closing connection");
   client.stop();
-
-  if (wait) {
-      delay(100); // execute once every 5 minutes, don't flood remote service
-  }
-  wait = true;
+  //Serial.println("Client Disconnected");
 }
