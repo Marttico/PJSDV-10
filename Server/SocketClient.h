@@ -19,8 +19,8 @@ class SocketClient
         ~SocketClient();
         int setup();
         void loop();
-        void writeSocketClient(uint8_t);
-        const uint8_t *readSocketClient();
+        int writeSocketClient(uint8_t);
+        void readSocketClient(uint8_t buffer[1024]);
     private:
         string ip;
         int port;

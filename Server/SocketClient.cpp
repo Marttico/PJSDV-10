@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 #include "SocketClient.h"
 #define PORT 8080
 
@@ -13,7 +14,7 @@ SocketClient::SocketClient(string ipaddress,int ipport):ip(ipaddress),port(ippor
 }
 
 SocketClient::~SocketClient(){
-	
+
 }
 
 int SocketClient::setup(){
@@ -25,6 +26,8 @@ int SocketClient::setup(){
 		printf("\n Socket creation error \n");
 		return -1;
 	}
+
+	
 
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port = htons(PORT);
@@ -41,19 +44,19 @@ int SocketClient::setup(){
 		printf("\nConnection Failed \n");
 		return -1;
 	}
+	/*int flags = fcntl(sock, F_GETFL, 0);
+	fcntl(sock,F_SETFL, flags| O_NONBLOCK);*/
 }
 
 
-void SocketClient::writeSocketClient(uint8_t value){
+int SocketClient::writeSocketClient(uint8_t value){
 	char msg[3] = {0x02,value,'\r'};
-	send(sock, msg, strlen(msg), 0);
+	return send(sock, msg, strlen(msg), 0);
 }
 
-const uint8_t *SocketClient::readSocketClient(){
+void SocketClient::readSocketClient(uint8_t buffer[64]){
 	char msg[2] = {0x01,'\r'};
 	send(sock, msg, strlen(msg), 0);
-	uint8_t buffer[1024] = {0};
 	valread = read( sock , buffer, 1024);
-	return buffer;
 }
 
