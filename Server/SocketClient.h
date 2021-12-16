@@ -20,7 +20,7 @@ class SocketClient
         int setup();
         void loop();
         int writeSocketClient(uint8_t);
-        void readSocketClient(uint8_t buffer[1024]);
+        int readSocketClient(uint8_t buffer[1024]);
     private:
         string ip;
         int port;

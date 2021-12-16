@@ -16,20 +16,27 @@
     
 int main(int argc , char *argv[])
 {
-    SocketClient cl("192.168.2.241",8080);
+    SocketClient cl(argv[1],8080);
     cl.setup();
     while(1){
         //uint8_t buffer[64];
         //cl.readSocketClient(buffer);
         //uint16_t analog = ((buffer[1]&0x03) << 8) + buffer[2];
         //printf("%i\n",buffer[0]&0x01);
-        cl.writeSocketClient(0x01 << 4);
-        printf("test\n");
+        for(uint8_t i = 0; i < 4; i++){
+            cl.writeSocketClient(1<<i);
+            usleep(100000);
+        }
+
+
+        /*cl.writeSocketClient(0b00001010);
+        printf("On %i\n", i);
         usleep(100000);
-        
-        cl.writeSocketClient(0);
-        printf("yeet\n");
-        usleep(100000);
+        cl.writeSocketClient(0b00000101);
+        printf("Off %i\n", i);
+        usleep(100000);*/
+        //printf("On %i, %i\n", cl.writeSocketClient(0x01), i);
+        //usleep(100000);
     }
         
     return 0;
