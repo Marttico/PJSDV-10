@@ -43,8 +43,9 @@ Server::Server(int port):port(port)
 
 bool Server::setUp()
 {
-    //int flags = fcntl(new_socket, F_GETFL, 0);
-    //fcntl(new_socket, F_SETFL, flags| O_NONBLOCK);
+    // Set Non-Blocking Flag To On
+    int flags = fcntl(new_socket, F_GETFL, 0);
+    fcntl(new_socket, F_SETFL, flags| O_NONBLOCK);
     cout <<"line: " <<__LINE__<<endl;
 
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0)
@@ -53,8 +54,6 @@ bool Server::setUp()
         exit(EXIT_FAILURE);
     }
     cout  <<"SOCKET"<<new_socket<<endl;
-    //nonblocking
-
     //inform user of socket number - used in send and receive commands
     printf("New connection , socket fd is %d , ip is : %s , port : %d\n", new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
     //send new connection greeting message
@@ -69,77 +68,45 @@ bool Server::setUp()
 
 }
 
-
-
-
-
 uint64_t Server::readServer()
 {
-    uint64_t hasClients = 0;
-    //if (setUp(0, 6000))
-    //{
-
-    //new_socket = new_socket;
-
-    //cout <<"ReadyToSend!"<<endl;
-
-    //if (FD_ISSET( sd, &readfds))
-    //{
+    //Set Non Blocking On
     int flags = fcntl(new_socket, F_GETFL, 0);
     if(fcntl(new_socket, F_SETFL, flags| O_NONBLOCK) == -1)
     {
-        cout <<"erro  r"<<endl;
+        cout <<"error"<<endl;
         return 0;
     }
-    char buffer[1025] = {'\0'};
-    //cout <<"line: " <<__LINE__<<endl;
 
-    if ((valread = read( new_socket, buffer, 1024)) == 0)
-    {
-        //Somebody disconnected , get his details and print
-        getpeername(new_socket, (struct sockaddr*)&address, \
-                    (socklen_t*)&addrlen);
-        printf("Host disconnected , ip %s , port %d \n",
-               inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+    //Check Client
+    char buffer[32] = {'\0'};
+    if ((valread = read( new_socket, buffer, 32)) == 0){return disconnectHost();}
 
-        //Close the socket and mark as 0 in list for reuse
-        close( new_socket );
-
-        new_socket = 0;
-        return 0;
+    //Send Read Command
+    char MessageBuffer[2] = {0x01,'\r'};
+    if(send(new_socket, MessageBuffer, strlen(MessageBuffer),0) == 0){
+        cout << "0" <<endl;
     }
-    else if (valread == -1)
-    {
-        //cout<<"empty<"<<endl;
-        return 0;
-    }
-    else
-    {
-        //printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
-        printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",new_socket,buffer[0],((buffer[1]&0x03) << 8) + buffer[2],buffer[3],buffer[4]);
-        cout <<":::" <<buffer<<endl;
-/// TODO (mike#9#): Server.cpp:154:106: warning: left shift count >= width of type [-Wshift-count-overflow] ...
-///  154 | rn buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32);
-///      |                                                                            ~~~~~~~~~~^~~~~
-///
-        return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32);
 
-        //printf("%s",buffer);
-    }
-    // }
+    //Read Response
+    char readBuffer[32] = {'\0'};
+    read(new_socket, readBuffer, 32);
+
+    //Print Response
+    printf("ID %i: Status: %i, Analog0: %i, Analog1: %i\n\n",new_socket,buffer[0],((buffer[1]&0x03) << 8) + buffer[2],((buffer[3]&0x03) <<8) + buffer[4]);
+    cout <<":::" <<buffer<<endl;
+
+    //Return Response
+    return buffer[0] + (buffer[1] << 8) + (buffer[2] << 16) + (buffer[3] << 24) + (buffer[4] << 32);
 
 }
 
 int Server::writeServer(char msg)
 {
-    //cout <<"line: " <<__LINE__<<endl;
-    char MessageBuffer[2] = {msg,'\0'};
-    char temp[5];
+    char MessageBuffer[3] = {0x02,msg,'\r'};
 
     int flags = fcntl(new_socket, F_GETFL, 0);
     fcntl(new_socket, F_SETFL, flags| O_NONBLOCK);
-    //cout <<"line: " <<__LINE__<<endl;
-    //printf("ID %i: Byte1: %i, Byte2: %i, Byte3: %i, Byte4: %i, Byte5: %i\n\n",i,buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
     int valSend = send(new_socket, MessageBuffer, strlen(MessageBuffer),0);
     if(valSend == 0)
     {
@@ -150,12 +117,15 @@ int Server::writeServer(char msg)
         cout<<"-1"<<endl;
 
     }
-    else
-    {
-        //cout<<"el";
-    }
+}
 
-    //}
+int Server::disconnectHost(){
+        getpeername(new_socket, (struct sockaddr*)&address, (socklen_t*)&addrlen);
+        printf("Host disconnected , ip %s , port %d \n",
+               inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
+        close(new_socket);
 
+        new_socket = 0;
+        return 0;       
 }

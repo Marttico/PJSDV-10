@@ -18,6 +18,7 @@ class Server
         bool setUp();
         int writeServer(char);
         uint64_t readServer();
+        int disconnectHost();
     private:
         //int master_socket, addrlen, new_socket, activity, i, valread, sd, port;
         int server_fd, new_socket, valread;
