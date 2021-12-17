@@ -1,4 +1,3 @@
-#include <vector>
 #include <iostream>
 #include <stdio.h>
 #include <string.h> //strlen
@@ -17,15 +16,14 @@ class Server
     public:
         Server(int, int);
         bool setUp(int, int);
-        void loop();
-        void writeServer(uint8_t);
+        int writeServer(char);
         uint64_t readServer();
     private:
-        int master_socket, addrlen, new_socket, max_clients, activity, i, valread, sd, port;
+        int master_socket, addrlen, new_socket, activity, i, valread, sd, port;
 
         int valSend;
-        struct timeval tv;
-        vector<int> client_socket;
+        struct timeval timeAct;
+        struct timeval timeSendRead;
         int opt = true;
         int max_sd;
         struct sockaddr_in address;
