@@ -36,6 +36,7 @@ unsigned int outputs=0;
 void loop(void) {
   WiFiClient client = wifiServer.available();
   client.setNoDelay(true);
+  hotplug();
   if(client){
     while(client.connected()){
       char buf[64] = {0};
@@ -46,7 +47,7 @@ void loop(void) {
       client.flush();
       
       if(buf[0] == 0x01){
-        
+        Serial.println("Read");
         //Get Values I2C
         char InputOutput = readOutput();
         uint16_t Analog0 = readAnalog(0);
@@ -55,15 +56,16 @@ void loop(void) {
         char Analog0_L = Analog0;
         char Analog1_H = Analog1 >> 8;
         char Analog1_L = Analog1;
-        char sendBuf[6] = {InputOutput,Analog0_H,Analog0_L,Analog1_H,Analog1_L,'\r'};
+        char sendBuf[7] = {InputOutput,Analog0_H,Analog0_L,Analog1_H,Analog1_L,'\r','\0'};
         //Send ProtocolVariables
-        client.print(sendBuf);
+        Serial.println(sendBuf);
+        client.write(sendBuf);
       }
       if(buf[0] == 0x02){
-        Serial.println("Data");
+        Serial.println("write");
        setOutput(buf[1]);
       }
-      hotplug;
+      hotplug();
       //setOutput(outputs);  
       outputs++;
       
