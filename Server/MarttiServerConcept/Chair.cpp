@@ -1,6 +1,6 @@
 #include "Chair.h"
 
-Chair::Chair(int Port,bool TrilPerms):port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true){
+Chair::Chair(int Port,bool TrilPerms,string Prefix,string* CommandLine):prefix(Prefix),commandLine(CommandLine),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true),th(&Chair::behaviour,this){
 
 }
 
@@ -9,20 +9,55 @@ Chair::~Chair(){
 }
 
 void Chair::behaviour(){
-    char readMessage[1024] = {0};
-    wm.readWemos(readMessage);
-    //Process the inputs and change outputs to the corresponding things idk
-    /*
-    // Here we'll add the actual behaviour of the chair to correspond to what it's supposed to be.
-    */
-    //Format the data into a message the Wemos can understand
-    char msg[1024] = {0};
-    sprintf(msg,"%i,%i\r",((trilMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023);
-    //Send data to the Wemos.
-    wm.writeWemos(msg);
+    while(true){
+        //Read Wemos Status
+        char readMessage[1024] = {0};
+        wm.readWemos(readMessage);
+        
+        //Convert message to Object Attributes
+        convertMessageToObjectAttr(readMessage);
+
+        //Handle Command Line Commands
+        triggerCommands();
+        
+
+        //Define behaviour of the object
+        //zetTril(inputPressure > 600);
+
+        //Format next message with object data
+        char msg[1024] = {0};
+        sprintf(msg,"%i,%i\r",((trilMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023);
+
+        //Send data to the Wemos
+        wm.writeWemos(msg);
+    }
+}
+
+void Chair::convertMessageToObjectAttr(char* msg){
+    if(wm.isConnected() && msg[0] != 0){
+        
+        //Get first element of message
+        char *token = strtok(msg, ",");
+        uint8_t statusBits = atoi(token);
+
+        //Get second element of message
+        token = strtok(NULL, ",");
+        uint16_t analog0Bits = atoi(token);
+
+        //Get third element of message
+        token = strtok(NULL, ",");  
+        uint16_t analog1Bits = atoi(token);
+
+
+        //Set variables of object
+        inputButton = statusBits & 0x01;
+
+        inputPressure = analog0Bits & 0x03FF;//0x03FF = 0b0000001111111111
+    }
 }
 
 void Chair::zetTril(bool i){
+    //If the chair object is allowed to "tril", let it "tril", otherwise, do not.
     if(trilPerms){
         trilMode = i;
     }else{
@@ -32,8 +67,36 @@ void Chair::zetTril(bool i){
 
 void Chair::zetTrilPermissie(bool i){
     trilPerms = i;
+    
+    //Updating trilMode
+    zetTril(trilMode);
 }
 
 void Chair::zetLed(bool i){
     ledMode = i;
+}
+
+bool Chair::triggerCommands(){
+    bool executed = false;
+    
+    //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
+    commandCompare(".trilaan", &Chair::zetTril,true,&executed);
+    commandCompare(".triluit", &Chair::zetTril,false,&executed);
+    commandCompare(".ledaan", &Chair::zetLed,true,&executed);
+    commandCompare(".leduit", &Chair::zetLed,false,&executed);
+    commandCompare(".trilpermaan", &Chair::zetTrilPermissie,true,&executed);
+    commandCompare(".trilpermuit", &Chair::zetTrilPermissie,false,&executed);
+    return executed;
+}
+
+
+void Chair::commandCompare(string i, void (Chair::*func)(bool), bool mode, bool* exec){
+    char temp[1024];
+    strcpy(temp,prefix.c_str());
+    strcat(temp,i.c_str());
+    if(!strcmp((*commandLine).c_str(),temp)){
+        (this ->*func)(mode);
+        *exec = true;
+        (*commandLine)[0] = 0;
+    }
 }

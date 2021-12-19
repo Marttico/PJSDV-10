@@ -25,6 +25,7 @@ public:
     void checkClient();
     int readMessage(char*);
     int sendMessage(char*);
+    bool isConnected() const;
 private:
     void resetClient();
     int port,server_fd, new_socket, opt, addrlen, noDelay, connected;

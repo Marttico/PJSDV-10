@@ -11,6 +11,7 @@ public:
     ~Wemos();
     int writeWemos(char*);
     int readWemos(char*);
+    bool isConnected() const;
 private:
     int port;
     Server wemosServer;
