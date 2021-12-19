@@ -17,33 +17,43 @@ void setup()
 {
   Wire.begin(0x38);                // join i2c bus with address #4
   Wire.onReceive(receiveEvent); // register event
+  pinMode(A0,OUTPUT);
+  pinMode(A1,OUTPUT);
+  pinMode(A2,OUTPUT);
+  pinMode(A3,OUTPUT);
+  digitalWrite(A0,HIGH);
+  delay(1000);
+  digitalWrite(A0,LOW);
+
+  
   Serial.begin(9600);           // start serial for output
 }
 
 void loop()
 {
   delay(100);
-  Serial.println(input);
+  Serial.println("");
+  //Serial.println(input);
   if((input >> 4)&0x01){
-    Serial.print("A0");
+    Serial.print("1");
     digitalWrite(A0,HIGH);
   }else{
     digitalWrite(A0,LOW);
   }
   if((input >> 5)&0x01){
-    Serial.print("A1");
+    Serial.print("2");
     digitalWrite(A1,HIGH);
   }else{
     digitalWrite(A1,LOW);
   }
   if((input >> 6)&0x01){
-    Serial.print("A1");
+    Serial.print("3");
     digitalWrite(A2,HIGH);
   }else{
     digitalWrite(A2,LOW);
   }
   if((input >> 7)&0x01){
-    Serial.print("A3");
+    Serial.print("4");
     digitalWrite(A3,HIGH);
   }else{
     digitalWrite(A3,LOW);

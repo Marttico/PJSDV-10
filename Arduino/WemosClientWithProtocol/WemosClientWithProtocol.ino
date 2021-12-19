@@ -8,6 +8,9 @@
 */
 #include <ESP8266WiFi.h>
 #include <Wire.h>
+#include<string.h>
+#include<stdio.h>
+#include <stdlib.h>
 
 #define I2C_SDL    D1
 #define I2C_SDA    D2
@@ -21,13 +24,20 @@ uint8_t ledValue = 0x00;
 const char* host = "192.168.2.1";
 const int port = 8080;
 
+WiFiClient client;
 
 
 void setup() {
   pinMode(D5, OUTPUT);
   Wire.begin();
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
-  Serial.begin(9600);
+  writeOutput(255);
+  delay(1000);
+  writeOutput(0);
+  
+  
+  
+  Serial.begin(115200);
   while (!Serial);
   //WiFi.printDiag(Serial);
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -37,7 +47,7 @@ void setup() {
  
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
-    Serial.print("Attempting to connect to WPA SSID: ");
+    Serial.print("Connecting...");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
@@ -49,110 +59,62 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-   hotPluggableFunction();
-  Serial.print("connecting to ");
-  Serial.print(host);
-  Serial.print(':');
-  Serial.println(port);
-  WiFiClient client;
-  if (!client.connect(host, port)) {
-      Serial.println("connection failed");
-      delay(5000);
-      return;
+  hotPluggableFunction();
+  if (!client.connect(host, port)){
+    Serial.println("Connection to host failed");
+    delay(1000);
+    return;
   }
-
-  // This will send a string to the server
-  Serial.println("sending data to server");
-  if (client.connected()) {
-      while(client.connected()){
-        unsigned long timeout = millis();
-        while(client.available() == 0){
-          if (millis() - timeout > 5000) {
-            Serial.println(">>> Client Timeout !");
-            client.stop();
-            delay(3000);
-            //return;
-          }
-        }
-        if(client.connected()){
-          char buf[2] = {'\0'};
-          char ch;
-          //Collect buffer to buf array
-          while (client.available()) {
-              ch = static_cast<char>(client.read());
-              strncat(buf,&ch,1);
-          }
-          if(buf[0] == 0x01){
-            char sendBuf[6] = {'\0'};
-            //Get Values I2C
-            char InputOutput = readOutput();
-            uint16_t Analog0 = readAnalog(0);
-            uint16_t Analog1 = readAnalog(1);
-            char Analog0_H = Analog0 >> 8;
-            char Analog0_L = Analog0;
-            char Analog1_H = Analog1 >> 8;
-            char Analog1_L = Analog1;
-            
-            //Append Values to Send Buffer
-            strncat(sendBuf,&InputOutput,1);
-            strncat(sendBuf,&Analog0_H,1);
-            strncat(sendBuf,&Analog0_L,1);
-            strncat(sendBuf,&Analog1_H,1);
-            strncat(sendBuf,&Analog1_L,1);
-            //Send ProtocolVariables
-            client.print(sendBuf);
-          }
-          if(buf[0] == 0x02){
-            writeOutput(uint8_t(buf[0]));
-            Serial.println(int(buf[0]));
-          }
-        }
-        //Inside loop for debugging purpose (hot plugging wemos module into i/o board). 
-        hotPluggableFunction();
-      }
-  }
-  //Close the connection
-  Serial.println();
-  Serial.println("closing connection");
-  client.stop();
-}
-
-
-
-void writeOutput(bool b,int offset){
-    //offset = 1 for the lil light :)
-    Wire.beginTransmission(0x38); 
-    Wire.write(byte(0x00));      
-    Wire.endTransmission();
-    Wire.requestFrom(0x38, 1);   
-    uint8_t inputs = Wire.read(); 
-    if(b){
-      inputs |= 1<<offset+4;
-    }else{
-      inputs &= ~(1<<offset+4);
+  Serial.println("Connected to server successful!");
+  while(client.connected()){
+    char buf[1024] = {0};
+    int index = 0;
+    char c = 0;
+    while (client.available() > 0 && c != '\r')
+    {
+      c = client.read();
+      buf[index] = c;
+      index++;
     }
-    Wire.beginTransmission(0x38); 
-    Wire.write(byte(0x01));           
-    Wire.write(byte(inputs));
-    Wire.endTransmission();
+    buf[index] = '\0';
+    
+    if(buf[0] == 'R'){
+      Serial.println(buf);
+      //Serial.println("Read Command Received");
+      char sendBuffer[1024] = {0};
+      sprintf(sendBuffer,"%i,%i,%i",readOutput(),readAnalog(0),readAnalog(1));
+      client.print(sendBuffer);
+    }
+    if(buf[0] == 'W'){
+      Serial.println(buf);
+      //Serial.println("Write Command Received");
+      char *ptr;
+      char *p;
+      p = strtok(buf,",");
+      //Serial.println(p);
+      p = strtok(NULL,",");
+      //Serial.println(p);
+      uint8_t first = strtol(p,&ptr,10);
+      writeOutput(first);
+      p = strtok(NULL,",");
+      //Serial.println(p);
+      uint16_t second = strtol(p,&ptr,10);
+    }
+    
+  }
+  //Serial.print('\n');
+  client.stop();
+  delay(5000);
 }
+
+
 void writeOutput(uint8_t input){
     Wire.beginTransmission(0x38); 
     Wire.write(byte(0x01));
-    Wire.write(byte(input));
+    Wire.write(byte(input&0xF0));
     Wire.endTransmission();
 }
 
-uint8_t readOutput(int outputSlot){
-    Wire.beginTransmission(0x38); 
-    Wire.write(byte(0x00));      
-    Wire.endTransmission();
-    Wire.requestFrom(0x38, 1);   
-    uint8_t inputs = Wire.read();  
-    //return (inputs && (1 << outputSlot)) >> outputSlot;
-    return (inputs >> outputSlot) & 1;
-    //return inputs & 0x01;
-}
 uint8_t readOutput(){
     Wire.beginTransmission(0x38); 
     Wire.write(byte(0x00));      
