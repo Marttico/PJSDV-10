@@ -3,11 +3,13 @@
 CommandLineInput::CommandLineInput(string* CLIBuffer):clibuffer(CLIBuffer),th(&CommandLineInput::loop,this){
 
 }
+
 CommandLineInput::~CommandLineInput(){
 
 }
+
 void CommandLineInput::loop(){
-    while(1){
+    while(true){
         cin >> *clibuffer;
     }
 }

@@ -20,12 +20,14 @@ void Chair::behaviour(){
         //Handle Command Line Commands
         triggerCommands();
         
-
         //Define behaviour of the object
         //zetTril(inputPressure > 600);
 
         //Format next message with object data
         char msg[1024] = {0};
+        /*
+        //Check de byte offset positions op de Chairs enzo.
+        */
         sprintf(msg,"%i,%i\r",((trilMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023);
 
         //Send data to the Wemos
@@ -33,6 +35,40 @@ void Chair::behaviour(){
     }
 }
 
+bool Chair::triggerCommands(){
+    bool executed = false;
+    
+    //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
+    commandCompare(".trilaan", &Chair::zetTril,true,&executed);
+    commandCompare(".triluit", &Chair::zetTril,false,&executed);
+    commandCompare(".ledaan", &Chair::zetLed,true,&executed);
+    commandCompare(".leduit", &Chair::zetLed,false,&executed);
+    commandCompare(".trilpermaan", &Chair::zetTrilPermissie,true,&executed);
+    commandCompare(".trilpermuit", &Chair::zetTrilPermissie,false,&executed);
+    return executed;
+}
+
+void Chair::zetTril(bool i){
+    //If the chair object is allowed to "tril", let it "tril", otherwise, do not.
+    if(trilPerms){
+        trilMode = i;
+    }else{
+        trilMode = false;
+    }
+}
+
+void Chair::zetTrilPermissie(bool i){
+    trilPerms = i;
+
+    //Updating trilMode
+    zetTril(trilMode);
+}
+
+void Chair::zetLed(bool i){
+    ledMode = i;
+}
+
+//Basic Functions
 void Chair::convertMessageToObjectAttr(char* msg){
     if(wm.isConnected() && msg[0] != 0){
         
@@ -55,40 +91,6 @@ void Chair::convertMessageToObjectAttr(char* msg){
         inputPressure = analog0Bits & 0x03FF;//0x03FF = 0b0000001111111111
     }
 }
-
-void Chair::zetTril(bool i){
-    //If the chair object is allowed to "tril", let it "tril", otherwise, do not.
-    if(trilPerms){
-        trilMode = i;
-    }else{
-        trilMode = false;
-    }
-}
-
-void Chair::zetTrilPermissie(bool i){
-    trilPerms = i;
-    
-    //Updating trilMode
-    zetTril(trilMode);
-}
-
-void Chair::zetLed(bool i){
-    ledMode = i;
-}
-
-bool Chair::triggerCommands(){
-    bool executed = false;
-    
-    //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
-    commandCompare(".trilaan", &Chair::zetTril,true,&executed);
-    commandCompare(".triluit", &Chair::zetTril,false,&executed);
-    commandCompare(".ledaan", &Chair::zetLed,true,&executed);
-    commandCompare(".leduit", &Chair::zetLed,false,&executed);
-    commandCompare(".trilpermaan", &Chair::zetTrilPermissie,true,&executed);
-    commandCompare(".trilpermuit", &Chair::zetTrilPermissie,false,&executed);
-    return executed;
-}
-
 
 void Chair::commandCompare(string i, void (Chair::*func)(bool), bool mode, bool* exec){
     char temp[1024];

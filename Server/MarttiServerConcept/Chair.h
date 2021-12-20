@@ -19,8 +19,6 @@ public:
     void zetTrilPermissie(bool);
     void zetLed(bool);
     void behaviour();
-    void convertMessageToObjectAttr(char*);
-    bool triggerCommands();
 private:
     bool trilMode;
     bool trilPerms;
@@ -32,6 +30,8 @@ private:
     thread th;
     string prefix;
     string* commandLine;
+    bool triggerCommands();
+    void convertMessageToObjectAttr(char*);
     void commandCompare(string, void (Chair::*)(bool), bool, bool*);
 };
 

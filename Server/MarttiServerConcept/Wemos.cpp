@@ -3,9 +3,11 @@
 Wemos::Wemos(int Port):port(Port),wemosServer(Port){
 
 }
+
 Wemos::~Wemos(){
 
 }
+
 int Wemos::writeWemos(char* msg){
     char sendBuf[1024] = "W,";
     strcat(sendBuf,msg);

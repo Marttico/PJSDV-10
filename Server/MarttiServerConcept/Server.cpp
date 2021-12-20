@@ -117,6 +117,8 @@ void Server::resetClient(){
         close(new_socket);
         connected = 0;
     }
+
+    //Check for new clients
     checkClient();
 }
 
