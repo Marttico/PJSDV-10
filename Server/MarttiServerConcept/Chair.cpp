@@ -94,11 +94,17 @@ void Chair::convertMessageToObjectAttr(char* msg){
 
 void Chair::commandCompare(string i, void (Chair::*func)(bool), bool mode, bool* exec){
     char temp[1024];
+    //Add prefix to temp character array
     strcpy(temp,prefix.c_str());
+    //Add command string to character array
     strcat(temp,i.c_str());
+    //Compare input to temp
     if(!strcmp((*commandLine).c_str(),temp)){
+        //Execute parameter function func
         (this ->*func)(mode);
+        //Set exec to true
         *exec = true;
+        //Clear commandline string
         (*commandLine)[0] = 0;
     }
 }

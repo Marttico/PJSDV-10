@@ -8,9 +8,7 @@ int main(int argc, char const *argv[])
 {
     string cli;
     CommandLineInput clinput(&cli);
-    Chair ch(8080,true,"ch",&cli);
-    //Chair ch2(8081,true);
-    
+    Chair ch1(8080,true,"ch",&cli);
     while(1){
         
     }
