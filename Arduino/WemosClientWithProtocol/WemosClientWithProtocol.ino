@@ -11,6 +11,7 @@
 #include<string.h>
 #include<stdio.h>
 #include <stdlib.h>
+#include <Servo.h>
 
 #define I2C_SDL    D1
 #define I2C_SDA    D2
@@ -20,7 +21,8 @@ char pass[] = "13371337";  // your network password
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 uint8_t ledValue = 0x00;
 
-//WiFiServer wifiServer(8080);
+Servo myservo;
+int servotimer;
 const char* host = "192.168.2.1";
 const int port = 8080;
 
@@ -29,6 +31,7 @@ WiFiClient client;
 
 void setup() {
   pinMode(D5, OUTPUT);
+  //tone(14,1000);
   Wire.begin();
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
   writeOutput(255);
@@ -80,28 +83,40 @@ void loop() {
     
     if(buf[0] == 'R'){
       Serial.println(buf);
-      //Serial.println("Read Command Received");
       char sendBuffer[1024] = {0};
       sprintf(sendBuffer,"%i,%i,%i",readOutput(),readAnalog(0),readAnalog(1));
       client.print(sendBuffer);
     }
     if(buf[0] == 'W'){
       Serial.println(buf);
-      //Serial.println("Write Command Received");
       char *ptr, *p;
       p = strtok(buf,",");
       p = strtok(NULL,",");
       uint8_t first = strtol(p,&ptr,10);
       writeOutput(first);
       p = strtok(NULL,",");
+      char D5mode = p[0];
+      p = strtok(NULL,",");
       //Serial.println(p);
       uint16_t second = strtol(p,&ptr,10);
 
-      //Insert PWM thingy idk
+      if(D5mode == 'S'){
+        if(!myservo.attached()){
+          myservo.attach(14);
+        }
+        Serial.println(second);
+        myservo.write(int(second));
+      }
+
+      if(D5mode == 'Z'){
+        if(myservo.attached()){
+          myservo.detach();
+          pinMode(D5, OUTPUT);
+        }
+        tone(14,second);
+      }
     }
-    
   }
-  //Serial.print('\n');
   client.stop();
   delay(2000);
 }
