@@ -88,23 +88,22 @@ void loop() {
     if(buf[0] == 'W'){
       Serial.println(buf);
       //Serial.println("Write Command Received");
-      char *ptr;
-      char *p;
+      char *ptr, *p;
       p = strtok(buf,",");
-      //Serial.println(p);
       p = strtok(NULL,",");
-      //Serial.println(p);
       uint8_t first = strtol(p,&ptr,10);
       writeOutput(first);
       p = strtok(NULL,",");
       //Serial.println(p);
       uint16_t second = strtol(p,&ptr,10);
+
+      //Insert PWM thingy idk
     }
     
   }
   //Serial.print('\n');
   client.stop();
-  delay(5000);
+  delay(2000);
 }
 
 
