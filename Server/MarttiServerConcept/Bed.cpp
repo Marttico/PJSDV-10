@@ -28,7 +28,7 @@ void Bed::behaviour(){
         /*
         //Check de byte offset positions op de Chairs enzo.
         */
-        sprintf(msg,"%i,%i\r",((ledMode & 0x01) <<5),1023);
+        sprintf(msg,"%i,,%i\r",((ledMode & 0x01) <<5),1023);
 
         //Send data to the Wemos
         wm.writeWemos(msg);

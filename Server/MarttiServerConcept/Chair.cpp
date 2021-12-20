@@ -21,14 +21,15 @@ void Chair::behaviour(){
         triggerCommands();
         
         //Define behaviour of the object
-        //zetTril(inputPressure > 600);
+        //If the inputpressure on the chair is higher than 600, turn on the "tril"
+        zetTril(inputPressure > 600);
 
         //Format next message with object data
         char msg[1024] = {0};
         /*
         //Check de byte offset positions op de Chairs enzo.
         */
-        sprintf(msg,"%i,%i\r",((trilMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023);
+        sprintf(msg,"%i,,%i\r",((trilMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023);
 
         //Send data to the Wemos
         wm.writeWemos(msg);
