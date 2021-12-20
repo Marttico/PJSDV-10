@@ -10,11 +10,12 @@ using namespace std;
 
 class CommandLineInput {
 public:
-    CommandLineInput(string*);
+    CommandLineInput(string);
     ~CommandLineInput();
     void loop();
+    string* getCLIaddr();
 private:
-    string* clibuffer;
+    string clibuffer;
     thread th;
 };
 

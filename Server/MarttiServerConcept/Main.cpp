@@ -6,9 +6,8 @@
 #define PORT 8080
 int main(int argc, char const *argv[])
 {
-    string cli;
-    CommandLineInput clinput(&cli);
-    Chair ch1(8080,true,"ch",&cli);
+    CommandLineInput comml("");
+    Chair ch1(8080,true,"ch",comml.getCLIaddr());
     while(1){
         
     }
