@@ -29,7 +29,7 @@ void Chair::behaviour(){
         /*
         //Check de byte offset positions op de Chairs enzo.
         */
-        sprintf(msg,"%i,,%i\r",((trilMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023);
+        sprintf(msg,"%i, ,%i\r",((trilMode & 0x01) << 5) + ((ledMode & 0x01) <<4),1023);
 
         //Send data to the Wemos
         wm.writeWemos(msg);
@@ -40,12 +40,12 @@ bool Chair::triggerCommands(){
     bool executed = false;
     
     //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
-    commandCompare(".trilaan", &Chair::zetTril,true,&executed);
-    commandCompare(".triluit", &Chair::zetTril,false,&executed);
-    commandCompare(".ledaan", &Chair::zetLed,true,&executed);
-    commandCompare(".leduit", &Chair::zetLed,false,&executed);
-    commandCompare(".trilpermaan", &Chair::zetTrilPermissie,true,&executed);
-    commandCompare(".trilpermuit", &Chair::zetTrilPermissie,false,&executed);
+    if(commandCompare(".trilaan")){zetTril(true);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".triluit")){zetTril(false);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".ledaan")){zetLed(true);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".leduit")){zetLed(false);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".trilpermaan")){zetTrilPermissie(true);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".trilpermuit")){zetTrilPermissie(false);executed = true; (*commandLine)[0] = 0;}
     return executed;
 }
 
@@ -93,6 +93,19 @@ void Chair::convertMessageToObjectAttr(char* msg){
     }
 }
 
+bool Chair::commandCompare(string i){
+    char temp[1024];
+    //Add prefix to temp character array
+    strcpy(temp,prefix.c_str());
+    //Add command string to character array
+    strcat(temp,i.c_str());
+    //Compare input to temp
+    
+    
+    return !strcmp((*commandLine).c_str(),temp);
+}
+
+/*
 void Chair::commandCompare(string i, void (Chair::*func)(bool), bool mode, bool* exec){
     char temp[1024];
     //Add prefix to temp character array
@@ -100,6 +113,8 @@ void Chair::commandCompare(string i, void (Chair::*func)(bool), bool mode, bool*
     //Add command string to character array
     strcat(temp,i.c_str());
     //Compare input to temp
+    
+    
     if(!strcmp((*commandLine).c_str(),temp)){
         //Execute parameter function func
         (this ->*func)(mode);
@@ -108,4 +123,4 @@ void Chair::commandCompare(string i, void (Chair::*func)(bool), bool mode, bool*
         //Clear commandline string
         (*commandLine)[0] = 0;
     }
-}
+}*/

@@ -33,7 +33,9 @@ private:
     string* commandLine;
     bool triggerCommands();
     void convertMessageToObjectAttr(char*);
-    void commandCompare(string, void (Chair::*)(bool), bool, bool*);
+    bool commandCompare(string);
+    
+    //void commandCompare(string, void (Chair::*)(bool), bool, bool*);
 };
 
 #endif

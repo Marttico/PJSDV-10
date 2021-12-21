@@ -16,27 +16,26 @@ using namespace std;
 
 class Door {
 public:
-    Door(int,string,string*);
+    Door(int,int,string,string*);
     ~Door();
     void zetLed(bool);
     void zetDoorAngle(int);
     void zetDebugButton(bool);
+    void zetOpenPermissie(bool);
     void behaviour();
 private:
-    bool ledMode;
-    int doorAngle;
-    bool inputButton;
-    bool oldInputButton;
-    uint64_t doortimer;
-    int port;
+    bool ledMode,inputButton,oldInputButton,openPermissie;
+    int doorAngle,port,doorOpenTimerDelay;
+    uint64_t doortimer,ledtimer;
     Wemos wm;
     thread th;
     string prefix;
     string* commandLine;
     bool triggerCommands();
     void convertMessageToObjectAttr(char*);
-    void commandCompare(string, void (Door::*)(bool), bool, bool*);
-    void commandCompare(string, void (Door::*)(int), int, bool*);
+    bool commandCompare(string);
+    //void commandCompare(string, void (Door::*)(bool), bool, bool*);
+    //void commandCompare(string, void (Door::*)(int), int, bool*);
     uint64_t getMillis();
 };
 

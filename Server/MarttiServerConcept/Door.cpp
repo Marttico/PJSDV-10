@@ -1,6 +1,6 @@
 #include "Door.h"
 
-Door::Door(int Port,string Prefix,string* CommandLine):doorAngle(0),prefix(Prefix),commandLine(CommandLine),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),th(&Door::behaviour,this){
+Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,string* CommandLine):doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),commandLine(CommandLine),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),th(&Door::behaviour,this){
 
 }
 
@@ -16,7 +16,6 @@ void Door::behaviour(){
         
         //Convert message to Object Attributes
         convertMessageToObjectAttr(readMessage);
-
         //Handle Command Line Commands
         triggerCommands();
         
@@ -24,18 +23,23 @@ void Door::behaviour(){
         //If there's a positive change in inputButton, open the door and set doortimer to the current milliseconds since epoch
         if(inputButton > oldInputButton){
             doortimer = getMillis();
-            zetDoorAngle(90);
+            ledtimer = getMillis();
+            zetDoorAngle(180);
+            zetLed(true);
         }
 
         //If the difference between the current milliseconds since epoch and doortime is larger than 20000 milliseconds, close the door
-        if(getMillis()-doortimer > 2000){
-            zetDoorAngle(0);
+        if(getMillis()-doortimer > doorOpenTimerDelay && getMillis()-doortimer < doorOpenTimerDelay+1000){
+            zetDoorAngle(70);
+        }
+        if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000){
+            zetLed(false);
         }
 
         //Format next message with object data
         char msg[1024] = {0};
         //The S flag tells the wemos there's a servo connected
-        sprintf(msg,"%i,S,%i\r",((ledMode & 0x01) <<5),doorAngle);
+        sprintf(msg,"%i,S,%i\r",((ledMode & 0x01) <<4),doorAngle);
         oldInputButton = inputButton;
         //Send data to the Wemos
         wm.writeWemos(msg);
@@ -47,13 +51,21 @@ bool Door::triggerCommands(){
     bool executed = false;
     
     //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
-    commandCompare(".ledaan", &Door::zetLed,true,&executed);
-    commandCompare(".leduit", &Door::zetLed,false,&executed);
+    if(commandCompare(".ledaan")){zetLed(true);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".leduit")){zetLed(false);executed = true; (*commandLine)[0] = 0;}
+    
+    if(commandCompare(".permaan")){zetOpenPermissie(true);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".permuit")){zetOpenPermissie(false);executed = true; (*commandLine)[0] = 0;}
+    
 
-    commandCompare(".pushbutton", &Door::zetDebugButton,true,&executed);
 
-    commandCompare(".opendoor", &Door::zetDoorAngle,1000,&executed);
-    commandCompare(".closedoor", &Door::zetDoorAngle,2000,&executed);
+    if(commandCompare(".pushbutton")){zetDebugButton(true);executed = true; (*commandLine)[0] = 0;}
+    
+    if(commandCompare(".opendoor")){zetDoorAngle(180);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".closedoor")){zetDoorAngle(70);executed = true; (*commandLine)[0] = 0;}
+    
+    //commandCompare(".opendoor", &Door::zetDoorAngle,1000,&executed);
+    //commandCompare(".closedoor", &Door::zetDoorAngle,2000,&executed);
     return executed;
 }
 
@@ -65,8 +77,14 @@ void Door::zetDebugButton(bool i){
     inputButton = i;
 }
 
+void Door::zetOpenPermissie(bool i){
+    openPermissie = i;
+}
+
 void Door::zetDoorAngle(int i){
-    doorAngle = i;
+    if(openPermissie){
+        doorAngle = i;
+    }
 }
 
 //Basic Functions
@@ -86,30 +104,18 @@ void Door::convertMessageToObjectAttr(char* msg){
         uint16_t analog1Bits = atoi(token);
 
         //Set variables of object
-        inputButton = statusBits & 0x01;
+        inputButton = ((statusBits>>1) & 0x01) | (statusBits & 0x01);
     }
 }
 
-void Door::commandCompare(string i, void (Door::*func)(bool), bool mode, bool* exec){
+bool Door::commandCompare(string i){
     char temp[1024];
+    //Add prefix to temp character array
     strcpy(temp,prefix.c_str());
+    //Add command string to character array
     strcat(temp,i.c_str());
-    if(!strcmp((*commandLine).c_str(),temp)){
-        (this ->*func)(mode);
-        *exec = true;
-        (*commandLine)[0] = 0;
-    }
-}
-
-void Door::commandCompare(string i, void (Door::*func)(int), int mode, bool* exec){
-    char temp[1024];
-    strcpy(temp,prefix.c_str());
-    strcat(temp,i.c_str());
-    if(!strcmp((*commandLine).c_str(),temp)){
-        (this ->*func)(mode);
-        *exec = true;
-        (*commandLine)[0] = 0;
-    }
+    //Compare input to temp
+    return !strcmp((*commandLine).c_str(),temp);
 }
 uint64_t Door::getMillis(){
 return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

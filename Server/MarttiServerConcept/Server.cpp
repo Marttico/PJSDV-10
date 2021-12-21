@@ -73,6 +73,7 @@ void Server::checkClient(){
         connected = 1;
     }
     if(connected){
+        cout << "New client connected" << endl;
         //Set Message Timeout for sending and receiving
         if (setsockopt (new_socket, SOL_SOCKET, SO_RCVTIMEO, &messageTimeout,
                     sizeof messageTimeout) < 0)
