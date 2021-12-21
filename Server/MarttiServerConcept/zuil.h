@@ -1,7 +1,17 @@
 #ifndef ZUIL_H_
 #define ZUIL_H_
+#include "Wemos.h"
 
+#include <thread>
+#include <string>
+//#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <functional>
+#include <cstring>
 
+using namespace std;
 class Zuil
 {
     public:
@@ -16,7 +26,7 @@ class Zuil
         bool gasSensor;
         bool ledMode;
         bool zoemerMode;
-
+        //bool alarm;
         int port;
         Wemos wm;
         thread th;
@@ -24,7 +34,7 @@ class Zuil
         string* commandLine;
 
         bool triggerCommands();
-        void convertMessageToObjectAttr(char *);
+        void convertMessageToObjectAttr(char* );
         void commandCompare(string, void(Zuil::*)(bool), bool, bool*);
 
 
