@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <functional>
+#include <sys/time.h>
+#include <ctime>
 
 using namespace std;
 
@@ -17,7 +19,10 @@ public:
     ~Bed();
     void zetLed(bool);
     void behaviour();
+
 private:
+    uint16_t bedTimer;
+    uint16_t getMillis();
     bool ledMode;
     bool inputButton;
     uint16_t inputPressure;

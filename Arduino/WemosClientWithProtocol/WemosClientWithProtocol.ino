@@ -12,7 +12,10 @@
 #include<stdio.h>
 #include <stdlib.h>
 #include <Servo.h>
+#include <EEPROM.h>
 
+
+#define PORTEEPROMADDR 0
 #define I2C_SDL    D1
 #define I2C_SDA    D2
 
@@ -24,13 +27,19 @@ uint8_t ledValue = 0x00;
 Servo myservo;
 int servotimer;
 const char* host = "192.168.2.1";
-const int port = 8080;
+int port = 8082;
 
 WiFiClient client;
 
 
 void setup() {
-  pinMode(D5, OUTPUT);
+  Serial.begin(115200);
+  //Receive EEPROM value
+  /*int eepraddr = (EEPROM.read(PORTEEPROMADDR) << 8) + EEPROM.read(PORTEEPROMADDR + 1);
+  if(eepraddr <= 8090 && eepraddr >= 8080){
+      port = eepraddr;
+  }*/
+ 
   //tone(14,1000);
   Wire.begin();
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
@@ -38,9 +47,6 @@ void setup() {
   delay(1000);
   writeOutput(0);
   
-  
-  
-  Serial.begin(115200);
   while (!Serial);
   //WiFi.printDiag(Serial);
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -57,7 +63,28 @@ void setup() {
     // wait 6 seconds for connection:
     delay(10000);
   }
-  Serial.print("You're connected to the network");
+  Serial.println("You're connected to the network");
+
+  //Port selection serial
+  int newport = 0;
+  char SerialBuf[64] = {0};
+  int index = 0;
+  while(newport == 0){
+    Serial.println("Enter your port: ");
+    delay(500);
+    while (Serial.available() > 0) {
+      char incomingByte = Serial.read();
+      SerialBuf[index] = incomingByte;
+      newport = 1;
+      index++;
+    }
+    SerialBuf[index] = 0;
+  }
+
+  port = atoi(SerialBuf);
+  Serial.print("Your specified port is ");
+  Serial.println(port);
+  
 }
 
 // the loop function runs over and over again forever
@@ -82,13 +109,13 @@ void loop() {
     buf[index] = '\0';
     
     if(buf[0] == 'R'){
-      Serial.println(buf);
+      //Serial.println(buf);
       char sendBuffer[1024] = {0};
       sprintf(sendBuffer,"%i,%i,%i",readOutput(),readAnalog(0),readAnalog(1));
       client.print(sendBuffer);
     }
     if(buf[0] == 'W'){
-      Serial.println(buf);
+      ///Serial.println(buf);
       char *ptr, *p;
       p = strtok(buf,",");
       p = strtok(NULL,",");
@@ -104,7 +131,7 @@ void loop() {
         if(!myservo.attached()){
           myservo.attach(14);
         }
-        Serial.println(second);
+        //Serial.println(second);
         myservo.write(int(second));
       }
 
