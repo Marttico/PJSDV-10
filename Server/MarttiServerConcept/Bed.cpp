@@ -22,13 +22,20 @@ void Bed::behaviour(){
         
         //Define behaviour of the object
         
+        if(ledMode || inputButton){
+            bedTimer = getMillis();
+        }
+
+        //The led turns off after 10000 miliseconds if the difference is bigger
+        if(getMillis() - bedTimer > 10000){
+            zetLed(false);
+        }
 
         //Format next message with object data
         char msg[1024] = {0};
-        /*
-        //Check de byte offset positions op de Chairs enzo.
-        */
-        sprintf(msg,"%i,,%i\r",((ledMode & 0x01) <<5),1023);
+
+
+        sprintf(msg,"%i,%i\r",((ledMode & 0x01) << 5),1023);
 
         //Send data to the Wemos
         wm.writeWemos(msg);
@@ -81,4 +88,8 @@ void Bed::commandCompare(string i, void (Bed::*func)(bool), bool mode, bool* exe
         *exec = true;
         (*commandLine)[0] = 0;
     }
+}
+
+uint64_t Bed::getMillis(){
+return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
