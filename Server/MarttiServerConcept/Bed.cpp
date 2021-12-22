@@ -1,6 +1,6 @@
 #include "Bed.h"
 
-Bed::Bed(int Port,string Prefix,string* CommandLine):prefix(Prefix),commandLine(CommandLine),port(Port),wm(Port),ledMode(true),th(&Bed::behaviour,this){
+Bed::Bed(int Port,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(true),th(&Bed::behaviour,this){
 
 }
 
@@ -9,7 +9,7 @@ Bed::~Bed(){
 }
 
 void Bed::behaviour(){
-    while(true){
+    //while(true){
         //Read Wemos Status
         char readMessage[1024] = {0};
         wm.readWemos(readMessage);
@@ -23,12 +23,13 @@ void Bed::behaviour(){
         //Define behaviour of the object
         
         if(inputButton){
+            //printf("test\n");
 			zetLed(true);
             bedTimer = getMillis();
         }
 
         //The led turns off after 10000 miliseconds if the difference is bigger
-        if(getMillis() - bedTimer > 10000){
+        if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
             zetLed(false);
         }
 
@@ -36,19 +37,23 @@ void Bed::behaviour(){
         char msg[1024] = {0};
 
 
-        sprintf(msg,"%i,%i\r",((ledMode & 0x01) << 4),1023);
+        sprintf(msg,"%i, ,%i\r",((ledMode & 0x01) << 4),1023);
 
         //Send data to the Wemos
         wm.writeWemos(msg);
-    }
+    //}
 }
 
 bool Bed::triggerCommands(){
     bool executed = false;
+    //Wait for CLI to not be busy
+    //while(cli -> checkBusy());
+    cli -> setBusy(true);
     
     //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
-    commandCompare(".ledaan", &Bed::zetLed,true,&executed);
-    commandCompare(".leduit", &Bed::zetLed,false,&executed);
+    if(commandCompare(".ledaan")){zetLed(true);executed = true; cli ->clearCLI();}
+    if(commandCompare(".leduit")){zetLed(false);executed = true; cli ->clearCLI();}
+    cli -> setBusy(false);
     return executed;
 }
 
@@ -80,15 +85,14 @@ void Bed::convertMessageToObjectAttr(char* msg){
     }
 }
 
-void Bed::commandCompare(string i, void (Bed::*func)(bool), bool mode, bool* exec){
+bool Bed::commandCompare(string i){
     char temp[1024];
+    //Add prefix to temp character array
     strcpy(temp,prefix.c_str());
+    //Add command string to character array
     strcat(temp,i.c_str());
-    if(!strcmp((*commandLine).c_str(),temp)){
-        (this ->*func)(mode);
-        *exec = true;
-        (*commandLine)[0] = 0;
-    }
+    //Compare input to temp
+    return !strcmp((cli->getCLI()).c_str(),temp);
 }
 
 uint64_t Bed::getMillis(){

@@ -1,4 +1,5 @@
 #include "Wemos.h"
+#include "CommandLineInput.h"
 #ifndef DOOR_H_
 #define DOOR_H_
 #include <chrono>
@@ -16,7 +17,7 @@ using namespace std;
 
 class Door {
 public:
-    Door(int,int,string,string*);
+    Door(int,int,string,CommandLineInput*);
     ~Door();
     void zetLed(bool);
     void zetDoorAngle(int);
@@ -30,7 +31,7 @@ private:
     Wemos wm;
     thread th;
     string prefix;
-    string* commandLine;
+    CommandLineInput* cli;
     bool triggerCommands();
     void convertMessageToObjectAttr(char*);
     bool commandCompare(string);

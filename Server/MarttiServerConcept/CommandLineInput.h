@@ -14,7 +14,12 @@ public:
     ~CommandLineInput();
     void loop();
     string* getCLIaddr();
+    bool checkBusy();
+    void setBusy(bool);
+    void clearCLI();
+    string getCLI();
 private:
+    bool isBusy;
     string clibuffer;
     thread th;
 };

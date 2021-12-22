@@ -1,4 +1,5 @@
 #include "Wemos.h"
+#include "CommandLineInput.h"
 #ifndef CHAIR_H_
 #define CHAIR_H_
 
@@ -14,7 +15,7 @@ using namespace std;
 
 class Chair {
 public:
-    Chair(int,bool,string,string*);
+    Chair(int,bool,string,CommandLineInput*);
     ~Chair();
     void zetTril(bool);
     void zetTrilPermissie(bool);
@@ -31,6 +32,7 @@ private:
     thread th;
     string prefix;
     string* commandLine;
+    CommandLineInput* cli;
     bool triggerCommands();
     void convertMessageToObjectAttr(char*);
     bool commandCompare(string);

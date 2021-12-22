@@ -1,7 +1,7 @@
 #ifndef COLUMN_H_
 #define COLUMN_H_
 #include "Wemos.h"
-
+#include "CommandLineInput.h"
 #include <thread>
 #include <string>
 //#include <string.h>
@@ -11,11 +11,13 @@
 #include <functional>
 #include <cstring>
 
+
+
 using namespace std;
 class Column
 {
     public:
-        Column(int , string , string* );
+        Column(int , string , CommandLineInput* );
         ~Column();
         void zetZoemer(bool);
         void zetLed(bool);
@@ -31,7 +33,7 @@ class Column
         Wemos wm;
         thread th;
         string prefix;
-        string* commandLine;
+        CommandLineInput* cli;
 
         bool triggerCommands();
         void convertMessageToObjectAttr(char* );

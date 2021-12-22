@@ -1,6 +1,6 @@
 #include "Chair.h"
 
-Chair::Chair(int Port,bool TrilPerms,string Prefix,string* CommandLine):prefix(Prefix),commandLine(CommandLine),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true),th(&Chair::behaviour,this){
+Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true),th(&Chair::behaviour,this){
 
 }
 
@@ -9,7 +9,7 @@ Chair::~Chair(){
 }
 
 void Chair::behaviour(){
-    while(true){
+    //while(true){
         //Read Wemos Status
         char readMessage[1024] = {0};
         wm.readWemos(readMessage);
@@ -33,19 +33,25 @@ void Chair::behaviour(){
 
         //Send data to the Wemos
         wm.writeWemos(msg);
-    }
+    //}
 }
 
 bool Chair::triggerCommands(){
     bool executed = false;
     
+    //Wait for CLI to not be busy
+    //while(cli -> checkBusy());
+    cli -> setBusy(true);
+    
     //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
-    if(commandCompare(".trilaan")){zetTril(true);executed = true; (*commandLine)[0] = 0;}
-    if(commandCompare(".triluit")){zetTril(false);executed = true; (*commandLine)[0] = 0;}
-    if(commandCompare(".ledaan")){zetLed(true);executed = true; (*commandLine)[0] = 0;}
-    if(commandCompare(".leduit")){zetLed(false);executed = true; (*commandLine)[0] = 0;}
-    if(commandCompare(".trilpermaan")){zetTrilPermissie(true);executed = true; (*commandLine)[0] = 0;}
-    if(commandCompare(".trilpermuit")){zetTrilPermissie(false);executed = true; (*commandLine)[0] = 0;}
+    if(commandCompare(".trilaan")){zetTril(true);executed = true; cli ->clearCLI();}
+    if(commandCompare(".triluit")){zetTril(false);executed = true; cli ->clearCLI();}
+    if(commandCompare(".ledaan")){zetLed(true);executed = true; cli ->clearCLI();}
+    if(commandCompare(".leduit")){zetLed(false);executed = true; cli ->clearCLI();}
+    if(commandCompare(".trilpermaan")){zetTrilPermissie(true);executed = true; cli ->clearCLI();}
+    if(commandCompare(".trilpermuit")){zetTrilPermissie(false);executed = true; cli ->clearCLI();}
+    cli -> setBusy(false);
+    
     return executed;
 }
 
@@ -102,7 +108,7 @@ bool Chair::commandCompare(string i){
     //Compare input to temp
     
     
-    return !strcmp((*commandLine).c_str(),temp);
+    return !strcmp((cli -> getCLI()).c_str(),temp);
 }
 
 /*
