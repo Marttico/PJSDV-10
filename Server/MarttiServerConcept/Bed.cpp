@@ -22,7 +22,8 @@ void Bed::behaviour(){
         
         //Define behaviour of the object
         
-        if(ledMode || inputButton){
+        if(inputButton){
+			zetLed(true);
             bedTimer = getMillis();
         }
 
