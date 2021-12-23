@@ -1,45 +1,38 @@
-#ifndef COLUMN_H_
-#define COLUMN_H_
 #include "Wemos.h"
 #include "CommandLineInput.h"
+
+#ifndef COLUMN_H_
+#define COLUMN_H_
+
+#include <chrono>
 #include <thread>
 #include <string>
-//#include <string.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
 #include <functional>
-#include <cstring>
-
-
+#include <sys/time.h>
+#include <iostream>
+#include <ctime>
 
 using namespace std;
-class Column
-{
+
+class Column {
     public:
-        Column(int , string , CommandLineInput* );
+        Column(int, string, CommandLineInput* );
         ~Column();
-        void zetZoemer(bool);
-        void zetLed(bool);
+        void zetZoemer(bool), zetLed(bool);
         void behaviour();
-
     private:
-        bool inputButton;
-        bool gasSensor;
-        bool ledMode;
-        bool zoemerMode;
-        //bool alarm;
+        bool inputButton,gasSensor,ledMode,zoemerMode;
         int port,sensorwaarde;
-        Wemos wm;
-        thread th;
+        
         string prefix;
+        thread th;
+        Wemos wm;
         CommandLineInput* cli;
-
-        bool triggerCommands();
-        void convertMessageToObjectAttr(char* );
-        bool commandCompare(string);
-
-
+        bool triggerCommands(), commandCompare(string);
+        void convertMessageToObjectAttr(char*);
 };
 
 #endif // ZUIL_H_

@@ -1,5 +1,6 @@
 #include "Wemos.h"
 #include "CommandLineInput.h"
+
 #ifndef BED_H_
 #define BED_H_
 
@@ -18,25 +19,21 @@ using namespace std;
 
 class Bed {
 public:
-    Bed(int,string,CommandLineInput*);
+    Bed(int, string, CommandLineInput*);
     ~Bed();
     void zetLed(bool);
     void behaviour();
-
 private:
-    uint64_t bedTimer;
-    bool ledMode;
-    bool inputButton;
+    bool ledMode, inputButton;
     uint16_t inputPressure;
+    uint64_t bedTimer, getMillis();
     int port;
-    Wemos wm;
-    thread th;
     string prefix;
+    thread th;
+    Wemos wm;
     CommandLineInput* cli;
-    bool triggerCommands();
+    bool triggerCommands(), commandCompare(string);
     void convertMessageToObjectAttr(char*);
-    bool commandCompare(string);
-    uint64_t getMillis();
 };
 
 #endif
