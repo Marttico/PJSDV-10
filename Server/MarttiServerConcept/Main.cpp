@@ -19,6 +19,7 @@ int main(int argc, char const *argv[])
         dr.behaviour();
         bd.behaviour();
         ch.behaviour();
+        //printf("LOOP\n");
     }
     return 0;
 }

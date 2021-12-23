@@ -1,49 +1,41 @@
 #include "Bed.h"
 
-Bed::Bed(int Port,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(true),th(&Bed::behaviour,this){
+Bed::Bed(int Port,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(true),th(&Bed::behaviour,this){}
 
-}
+Bed::~Bed(){}
 
-Bed::~Bed(){
-
-}
-
+//Behaviour
 void Bed::behaviour(){
-    //while(true){
-        //Read Wemos Status
-        char readMessage[1024] = {0};
-        wm.readWemos(readMessage);
-        
-        //Convert message to Object Attributes
-        convertMessageToObjectAttr(readMessage);
+    //Read Wemos Status
+    char readMessage[1024] = {0};
+    wm.readWemos(readMessage);
+    
+    //Convert message to Object Attributes
+    convertMessageToObjectAttr(readMessage);
 
-        //Handle Command Line Commands
-        triggerCommands();
-        
-        //Define behaviour of the object
-        
-        if(inputButton){
-            //printf("test\n");
-			zetLed(true);
-            bedTimer = getMillis();
-        }
+    //Handle Command Line Commands
+    triggerCommands();
+    
+    //Define behaviour of the object
+    if(inputButton){
+        zetLed(true);
+        bedTimer = getMillis();
+    }
 
-        //The led turns off after 10000 miliseconds if the difference is bigger
-        if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
-            zetLed(false);
-        }
+    //The led turns off after 10000 miliseconds if the difference is bigger
+    if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
+        zetLed(false);
+    }
 
-        //Format next message with object data
-        char msg[1024] = {0};
+    //Format next message with object data
+    char msg[1024] = {0};
+    sprintf(msg,"%i, ,%i\r",((ledMode & 0x01) << 4),1023);
 
-
-        sprintf(msg,"%i, ,%i\r",((ledMode & 0x01) << 4),1023);
-
-        //Send data to the Wemos
-        wm.writeWemos(msg);
-    //}
+    //Send data to the Wemos
+    wm.writeWemos(msg);
 }
 
+//Commands
 bool Bed::triggerCommands(){
     bool executed = false;
     //Wait for CLI to not be busy
@@ -55,10 +47,6 @@ bool Bed::triggerCommands(){
     if(commandCompare(".leduit")){zetLed(false);executed = true; cli ->clearCLI();}
     cli -> setBusy(false);
     return executed;
-}
-
-void Bed::zetLed(bool i){
-    ledMode = i;
 }
 
 //Basic Functions
@@ -96,5 +84,10 @@ bool Bed::commandCompare(string i){
 }
 
 uint64_t Bed::getMillis(){
-return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+//Object Specific Functions
+void Bed::zetLed(bool i){
+    ledMode = i;
 }

@@ -1,21 +1,18 @@
 #include "Door.h"
 
-Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI):doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),th(&Door::behaviour,this){
+Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI):doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),th(&Door::behaviour,this){}
 
-}
+Door::~Door(){}
 
-Door::~Door(){
-
-}
-
+//Behaviour
 void Door::behaviour(){
-    //while(true){
-        //Read Wemos Status
+    //Read Wemos Status
     char readMessage[1024] = {0};
     wm.readWemos(readMessage);
     
     //Convert message to Object Attributes
     convertMessageToObjectAttr(readMessage);
+    
     //Handle Command Line Commands
     triggerCommands();
     
@@ -46,7 +43,7 @@ void Door::behaviour(){
     //}
 }
 
-
+//Commands
 bool Door::triggerCommands(){
     bool executed = false;
     //Wait for CLI to not be busy
@@ -70,24 +67,6 @@ bool Door::triggerCommands(){
     //commandCompare(".opendoor", &Door::zetDoorAngle,1000,&executed);
     //commandCompare(".closedoor", &Door::zetDoorAngle,2000,&executed);
     return executed;
-}
-
-void Door::zetLed(bool i){
-    ledMode = i;
-}
-
-void Door::zetDebugButton(bool i){
-    inputButton = i;
-}
-
-void Door::zetOpenPermissie(bool i){
-    openPermissie = i;
-}
-
-void Door::zetDoorAngle(int i){
-    if(openPermissie){
-        doorAngle = i;
-    }
 }
 
 //Basic Functions
@@ -120,6 +99,26 @@ bool Door::commandCompare(string i){
     //Compare input to temp
     return !strcmp((cli -> getCLI()).c_str(),temp);
 }
+
 uint64_t Door::getMillis(){
-return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+//Object Specific Functions
+void Door::zetLed(bool i){
+    ledMode = i;
+}
+
+void Door::zetDebugButton(bool i){
+    inputButton = i;
+}
+
+void Door::zetOpenPermissie(bool i){
+    openPermissie = i;
+}
+
+void Door::zetDoorAngle(int i){
+    if(openPermissie){
+        doorAngle = i;
+    }
 }
