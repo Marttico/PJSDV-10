@@ -22,11 +22,13 @@ class Column {
         Column(int, string, CommandLineInput* );
         ~Column();
         void zetZoemer(bool), zetLed(bool);
+        int sensorWaarde() const;
         void behaviour();
+        int brand =false;
     private:
         bool inputButton,gasSensor,ledMode,zoemerMode;
         int port,sensorwaarde;
-        
+
         string prefix;
         Wemos wm;
         CommandLineInput* cli;
