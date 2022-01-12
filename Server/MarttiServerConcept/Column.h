@@ -28,7 +28,6 @@ class Column {
         int port,sensorwaarde;
         
         string prefix;
-        thread th;
         Wemos wm;
         CommandLineInput* cli;
         bool triggerCommands(), commandCompare(string);

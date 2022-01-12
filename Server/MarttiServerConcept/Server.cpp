@@ -60,6 +60,7 @@ void Server::checkClient(){
                 sizeof listenTimeout) < 0)
         perror("setsockopt failed\n");
     //Listen for new sockets.
+    //cout << "yeeeeet" << __LINE__ <<endl;
     if (listen(server_fd, 3) < 0)
     {
         perror("listen");
@@ -73,7 +74,7 @@ void Server::checkClient(){
         connected = 1;
     }
     if(connected){
-        cout << "New client connected" << endl;
+        cout << "New Client Connected" << endl;
         //Set Message Timeout for sending and receiving
         if (setsockopt (new_socket, SOL_SOCKET, SO_RCVTIMEO, &messageTimeout,
                     sizeof messageTimeout) < 0)

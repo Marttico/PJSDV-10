@@ -2,6 +2,8 @@
 #include <string.h>
 #include <iostream>
 #include <thread>
+#include <future>
+#include <chrono>
 #ifndef COMMANDLINEINPUT_H_
 #define COMMANDLINEINPUT_H_
 
@@ -14,14 +16,15 @@ public:
     ~CommandLineInput();
     void loop();
     string* getCLIaddr();
-    bool checkBusy();
-    void setBusy(bool);
     void clearCLI();
     string getCLI();
+    bool getExecuted();
+    void setExecuted();
 private:
-    bool isBusy;
+    static string getCommandLineInput();
+    bool executed;
     string clibuffer;
-    thread th;
+    
 };
 
 #endif

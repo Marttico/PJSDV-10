@@ -28,7 +28,6 @@ private:
     int port;
     uint16_t inputPressure;
     string prefix;
-    thread th;
     Wemos wm;
     CommandLineInput* cli;
     bool triggerCommands(), commandCompare(string);

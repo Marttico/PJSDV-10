@@ -28,7 +28,6 @@ private:
     int doorAngle,port,doorOpenTimerDelay;
     uint64_t doortimer,ledtimer, getMillis();
     string prefix;
-    thread th;
     Wemos wm;
     CommandLineInput* cli;
     bool triggerCommands(), commandCompare(string);

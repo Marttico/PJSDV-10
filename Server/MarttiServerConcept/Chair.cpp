@@ -1,30 +1,32 @@
 #include "Chair.h"
 
-Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true),th(&Chair::behaviour,this){}
+Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true){}
 
 Chair::~Chair(){}
 
 //Behaviour
 void Chair::behaviour(){
-    //Read Wemos Status
-    char readMessage[1024] = {0};
-    wm.readWemos(readMessage);
-    
-    //Convert message to Object Attributes
-    convertMessageToObjectAttr(readMessage);
+    //while(1){
+        //Read Wemos Status
+        char readMessage[1024] = {0};
+        wm.readWemos(readMessage);
+        
+        //Convert message to Object Attributes
+        convertMessageToObjectAttr(readMessage);
 
-    //Handle Command Line Commands
-    triggerCommands();
-    
-    //Define behaviour of the object
-    zetTril(inputPressure > 600);
+        //Handle Command Line Commands
+        triggerCommands();
+        
+        //Define behaviour of the object
+        zetTril(inputPressure > 600);
 
-    //Format next message with object data
-    char msg[1024] = {0};
-    sprintf(msg,"%i, ,%i\r",((trilMode & 0x01) << 5) + ((ledMode & 0x01) <<4),1023);
+        //Format next message with object data
+        char msg[1024] = {0};
+        sprintf(msg,"%i, ,%i\r",((trilMode & 0x01) << 5) + ((ledMode & 0x01) <<4),1023);
 
-    //Send data to the Wemos
-    wm.writeWemos(msg);
+        //Send data to the Wemos
+        wm.writeWemos(msg);
+    //}
 }
 
 //Commands
@@ -33,7 +35,6 @@ bool Chair::triggerCommands(){
     
     //Wait for CLI to not be busy
     //while(cli -> checkBusy());
-    cli -> setBusy(true);
     
     //Check commands
     if(commandCompare(".trilaan")){zetTril(true);executed = true; cli ->clearCLI();}
@@ -42,7 +43,6 @@ bool Chair::triggerCommands(){
     if(commandCompare(".leduit")){zetLed(false);executed = true; cli ->clearCLI();}
     if(commandCompare(".trilpermaan")){zetTrilPermissie(true);executed = true; cli ->clearCLI();}
     if(commandCompare(".trilpermuit")){zetTrilPermissie(false);executed = true; cli ->clearCLI();}
-    cli -> setBusy(false);
     
     return executed;
 }

@@ -29,7 +29,6 @@ private:
     uint64_t bedTimer, getMillis();
     int port;
     string prefix;
-    thread th;
     Wemos wm;
     CommandLineInput* cli;
     bool triggerCommands(), commandCompare(string);

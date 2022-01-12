@@ -1,37 +1,39 @@
 #include "Column.h"
 
-Column::Column(int Port, string Prefix, CommandLineInput* CLI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), th(&Column::behaviour, this){}
+Column::Column(int Port, string Prefix, CommandLineInput* CLI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port){}
 
 Column::~Column(){}
 
 //Behaviour
 void Column::behaviour(){
-    //Read Wemos Status
-    char readMessage[1024] = {0};
-    wm.readWemos(readMessage);
+    //while(1){
+        //Read Wemos Status
+        char readMessage[1024] = {0};
+        wm.readWemos(readMessage);
 
-    //Convert message to Object Attributes
-    convertMessageToObjectAttr(readMessage);
+        //Convert message to Object Attributes
+        convertMessageToObjectAttr(readMessage);
 
-    //Handle Command Line Commands
-    triggerCommands();
-    
-    //Define behaviour of the object
-    if(sensorwaarde > 500)
-    {
-        zetZoemer(true);
-    }
-    if(inputButton)
-    {
-        zetZoemer(false);
-    }
+        //Handle Command Line Commands
+        triggerCommands();
+        
+        //Define behaviour of the object
+        if(sensorwaarde > 500)
+        {
+            zetZoemer(true);
+        }
+        if(inputButton)
+        {
+            zetZoemer(false);
+        }
 
-    //Format next message with object data
-    char msg[1024] = {0};
-    sprintf(msg,"%i, ,%i\r",((zoemerMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023); /**TODO: hoe werkt dit bij zuil**/
+        //Format next message with object data
+        char msg[1024] = {0};
+        sprintf(msg,"%i, ,%i\r",((zoemerMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023); /**TODO: hoe werkt dit bij zuil**/
 
-    //Send data to the Wemos
-    wm.writeWemos(msg);
+        //Send data to the Wemos
+        wm.writeWemos(msg);
+    //}
 }
 
 //Commands
@@ -39,13 +41,11 @@ bool Column::triggerCommands(){
     bool executed = false;
     //Wait for CLI to not be busy
     //while(cli -> checkBusy());
-    cli -> setBusy(true);
     //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
     if(commandCompare(".buzaan")){zetZoemer(true);executed = true; cli -> clearCLI();}
     if(commandCompare(".buzuit")){zetZoemer(false);executed = true; cli -> clearCLI();}
     if(commandCompare(".ledaan")){zetLed(true);executed = true; cli -> clearCLI();}
     if(commandCompare(".leduit")){zetLed(false);executed = true; cli -> clearCLI();}
-    cli -> setBusy(false);
     return executed;
 }
 
