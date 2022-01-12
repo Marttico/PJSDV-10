@@ -37,16 +37,14 @@ void Column::behaviour(){
 }
 
 //Commands
-bool Column::triggerCommands(){
-    bool executed = false;
-    //Wait for CLI to not be busy
-    //while(cli -> checkBusy());
-    //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
-    if(commandCompare(".buzaan")){zetZoemer(true);executed = true; cli -> clearCLI();}
-    if(commandCompare(".buzuit")){zetZoemer(false);executed = true; cli -> clearCLI();}
-    if(commandCompare(".ledaan")){zetLed(true);executed = true; cli -> clearCLI();}
-    if(commandCompare(".leduit")){zetLed(false);executed = true; cli -> clearCLI();}
-    return executed;
+void Column::triggerCommands(){
+    if(!(cli -> getExecuted())){
+        //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
+        if(commandCompare(".buzaan")){zetZoemer(true);cli -> setExecuted();}
+        if(commandCompare(".buzuit")){zetZoemer(false);cli -> setExecuted();}
+        if(commandCompare(".ledaan")){zetLed(true);cli -> setExecuted();}
+        if(commandCompare(".leduit")){zetLed(false);cli -> setExecuted();}
+    }
 }
 
 //Basic Functions

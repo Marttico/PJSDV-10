@@ -6,7 +6,7 @@ Server::Server(int Port):port(Port),opt(1),noDelay(1),addrlen(sizeof(address)),c
     listenTimeout.tv_usec = 1000;
 
     //Set timeout for send and receive messages stage
-    messageTimeout.tv_sec = 0;
+    messageTimeout.tv_sec = 3;
     messageTimeout.tv_usec = 500000;
 
     //Creating socket file descriptor

@@ -38,7 +38,7 @@ void Bed::behaviour(){
 }
 
 //Commands
-bool Bed::triggerCommands(){
+void Bed::triggerCommands(){
     if(!(cli -> getExecuted())){
         //Put commands below.
         if(commandCompare(".ledaan")){zetLed(true);cli -> setExecuted();}

@@ -31,8 +31,8 @@ private:
     string prefix;
     Wemos wm;
     CommandLineInput* cli;
-    bool triggerCommands(), commandCompare(string);
-    void convertMessageToObjectAttr(char*);
+    bool commandCompare(string);
+    void triggerCommands(),convertMessageToObjectAttr(char*);
 };
 
 #endif

@@ -24,6 +24,7 @@ private:
     static string getCommandLineInput();
     bool executed;
     string clibuffer;
+    std::future<std::string> future;
     
 };
 
