@@ -16,14 +16,17 @@ void Column::behaviour(){
 
         //Handle Command Line Commands
         triggerCommands();
-        
+
         //Define behaviour of the object
-        if(sensorwaarde > 500)
+        if(sensorwaarde > 450)
         {
             zetZoemer(true);
+            brand = true;
         }
+        cout<<sensorWaarde()<<endl;
         if(inputButton)
         {
+            brand = false;
             zetZoemer(false);
         }
 
@@ -55,19 +58,19 @@ void Column::convertMessageToObjectAttr(char* msg)
         //Get first element of message
         char *token = strtok(msg, ",");
         uint8_t statusBits = atoi(token);
-    
+
         //Get second element of message
         token = strtok(NULL, ",");
         uint16_t analog0Bits = atoi(token);
-    
+
         //Get third element of message
         token = strtok(NULL, ",");
         uint16_t analog1Bits = atoi(token);
-    
+
         //Set variables of object
         inputButton = statusBits & 0x01;
         sensorwaarde = analog1Bits;
-        
+
     }
 
 }
@@ -91,4 +94,8 @@ void Column::zetZoemer(bool i)
 void Column::zetLed(bool i)
 {
         ledMode = i;
+}
+int Column::sensorWaarde() const
+{
+    return gasSensor;
 }
