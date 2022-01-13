@@ -1,6 +1,6 @@
 #include "Bed.h"
 
-Bed::Bed(int Port,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false){}
+Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, File* FI):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), fi(FI){}
 
 Bed::~Bed(){}
 
@@ -10,22 +10,24 @@ void Bed::behaviour(){
         //Read Wemos Status
         char readMessage[1024] = {0};
         wm.readWemos(readMessage);
-        
+
         //Convert message to Object Attributes
         convertMessageToObjectAttr(readMessage);
 
         //Handle Command Line Commands
         triggerCommands();
-        
+
         //Define behaviour of the object
         if(inputButton){
             zetLed(true);
             bedTimer = getMillis();
+            fi->writeLog("Bed::knopgedrukt");
         }
 
         //The led turns off after 10000 miliseconds if the difference is bigger
         if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
             zetLed(false);
+            fi->writeLog("Bed::led automatisch uitgeschakeld");
         }
 
         //Format next message with object data
@@ -49,7 +51,7 @@ void Bed::triggerCommands(){
 //Basic Functions
 void Bed::convertMessageToObjectAttr(char* msg){
     if(wm.isConnected() && msg[0] != 0){
-        
+
         //Get first element of message
         char *token = strtok(msg, ",");
         uint8_t statusBits = atoi(token);
@@ -59,7 +61,7 @@ void Bed::convertMessageToObjectAttr(char* msg){
         uint16_t analog0Bits = atoi(token);
 
         //Get third element of message
-        token = strtok(NULL, ",");  
+        token = strtok(NULL, ",");
         uint16_t analog1Bits = atoi(token);
 
 
@@ -78,7 +80,7 @@ bool Bed::commandCompare(string i){
     strcat(temp,i.c_str());
     //Compare input to temp
     return !strcmp((cli->getCLI()).c_str(),temp);
-    
+
 }
 
 uint64_t Bed::getMillis(){

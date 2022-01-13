@@ -1,6 +1,8 @@
 #include "Door.h"
 
-Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI):doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true){}
+Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI,  Column* colmn):
+doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(colmn)
+{}
 
 Door::~Door(){}
 
@@ -9,13 +11,13 @@ void Door::behaviour(){
     //Read Wemos Status
     char readMessage[1024] = {0};
     wm.readWemos(readMessage);
-    
+
     //Convert message to Object Attributes
     convertMessageToObjectAttr(readMessage);
-    
+
     //Handle Command Line Commands
     triggerCommands();
-    
+
     //Define behaviour of the object
     //If there's a positive change in inputButton, open the door and set doortimer to the current milliseconds since epoch
     if(inputButton > oldInputButton){
@@ -31,6 +33,11 @@ void Door::behaviour(){
     }
     if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000){
         zetLed(false);
+    }
+
+    if(cl->isBrand())
+    {
+        zetDoorAngle(180);
     }
 
     //Format next message with object data
@@ -49,14 +56,14 @@ void Door::triggerCommands(){
         //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
         if(commandCompare(".ledaan")){zetLed(true);cli -> setExecuted();}
         if(commandCompare(".leduit")){zetLed(false);cli -> setExecuted();}
-        
+
         if(commandCompare(".permaan")){zetOpenPermissie(true);cli -> setExecuted();}
         if(commandCompare(".permuit")){zetOpenPermissie(false);cli -> setExecuted();}
-        
+
 
 
         if(commandCompare(".pushbutton")){zetDebugButton(true);cli -> setExecuted();}
-        
+
         if(commandCompare(".opendoor")){zetDoorAngle(180);cli -> setExecuted();}
         if(commandCompare(".closedoor")){zetDoorAngle(70);cli -> setExecuted();}
         //commandCompare(".opendoor", &Door::zetDoorAngle,1000,&executed);
@@ -67,7 +74,7 @@ void Door::triggerCommands(){
 //Basic Functions
 void Door::convertMessageToObjectAttr(char* msg){
     if(wm.isConnected() && msg[0] != 0){
-        
+
         //Get first element of message
         char *token = strtok(msg, ",");
         uint8_t statusBits = atoi(token);
@@ -77,7 +84,7 @@ void Door::convertMessageToObjectAttr(char* msg){
         uint16_t analog0Bits = atoi(token);
 
         //Get third element of message
-        token = strtok(NULL, ",");  
+        token = strtok(NULL, ",");
         uint16_t analog1Bits = atoi(token);
 
         //Set variables of object

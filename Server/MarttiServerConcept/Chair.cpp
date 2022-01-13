@@ -10,13 +10,13 @@ void Chair::behaviour(){
         //Read Wemos Status
         char readMessage[1024] = {0};
         wm.readWemos(readMessage);
-        
+
         //Convert message to Object Attributes
         convertMessageToObjectAttr(readMessage);
 
         //Handle Command Line Commands
         triggerCommands();
-        
+
         //Define behaviour of the object
         zetTril(inputPressure > 600);
 
@@ -32,10 +32,10 @@ void Chair::behaviour(){
 //Commands
 bool Chair::triggerCommands(){
     bool executed = false;
-    
+
     //Wait for CLI to not be busy
     //while(cli -> checkBusy());
-    
+
     //Check commands
     if(commandCompare(".trilaan")){zetTril(true);executed = true; cli ->clearCLI();}
     if(commandCompare(".triluit")){zetTril(false);executed = true; cli ->clearCLI();}
@@ -43,14 +43,14 @@ bool Chair::triggerCommands(){
     if(commandCompare(".leduit")){zetLed(false);executed = true; cli ->clearCLI();}
     if(commandCompare(".trilpermaan")){zetTrilPermissie(true);executed = true; cli ->clearCLI();}
     if(commandCompare(".trilpermuit")){zetTrilPermissie(false);executed = true; cli ->clearCLI();}
-    
+
     return executed;
 }
 
 //Basic functions
 void Chair::convertMessageToObjectAttr(char* msg){
     if(wm.isConnected() && msg[0] != 0){
-        
+
         //Get first element of message
         char *token = strtok(msg, ",");
         uint8_t statusBits = atoi(token);
@@ -60,7 +60,7 @@ void Chair::convertMessageToObjectAttr(char* msg){
         uint16_t analog0Bits = atoi(token);
 
         //Get third element of message
-        token = strtok(NULL, ",");  
+        token = strtok(NULL, ",");
         uint16_t analog1Bits = atoi(token);
 
         //Set variables of object
@@ -84,6 +84,7 @@ void Chair::zetTril(bool i){
     //If the chair object is allowed to "tril", let it "tril", otherwise, do not.
     if(trilPerms){
         trilMode = i;
+
     }else{
         trilMode = false;
     }

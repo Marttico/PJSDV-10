@@ -15,7 +15,7 @@ Server::Server(int Port):port(Port),opt(1),noDelay(1),addrlen(sizeof(address)),c
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-       
+
     //Forcefully attaching socket to the port 8080
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
     {
@@ -26,9 +26,9 @@ Server::Server(int Port):port(Port),opt(1),noDelay(1),addrlen(sizeof(address)),c
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
-       
+
     //Forcefully attaching socket to the port 8080
-    if (bind(server_fd, (struct sockaddr *)&address, 
+    if (bind(server_fd, (struct sockaddr *)&address,
                                  sizeof(address))<0)
     {
         perror("bind failed");
@@ -69,12 +69,13 @@ void Server::checkClient(){
     //Accept Socket
     if ((new_socket = accept(server_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen))<0)
     {
-        
+
     }else{
         connected = 1;
     }
     if(connected){
         cout << "New Client Connected" << endl;
+
         //Set Message Timeout for sending and receiving
         if (setsockopt (new_socket, SOL_SOCKET, SO_RCVTIMEO, &messageTimeout,
                     sizeof messageTimeout) < 0)
@@ -83,7 +84,7 @@ void Server::checkClient(){
         if (setsockopt (new_socket, SOL_SOCKET, SO_SNDTIMEO, &messageTimeout,
                     sizeof messageTimeout) < 0)
             perror("setsockopt failed\n");
-        
+
         //Remove TCP Message delay (Mitigates merging messages)
         if (setsockopt (new_socket, IPPROTO_TCP, TCP_NODELAY, &noDelay,
                     sizeof noDelay) < 0)
@@ -104,7 +105,7 @@ int Server::readMessage(char* outstr){
     }
     //Return status message
     return valread;
-    
+
 }
 
 int Server::sendMessage(char* msg){
