@@ -1,6 +1,6 @@
 #include "Column.h"
 
-Column::Column(int Port, string Prefix, CommandLineInput* CLI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port){}
+Column::Column(int Port, string Prefix, CommandLineInput* CLI, File* FI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), fi(FI){}
 
 Column::~Column(){}
 
@@ -16,15 +16,20 @@ void Column::behaviour(){
 
         //Handle Command Line Commands
         triggerCommands();
-        
+
         //Define behaviour of the object
-        if(sensorwaarde > 500)
+        if(sensorwaarde > 530)
         {
             zetZoemer(true);
+            brand = true;
+            fi->writeLog("Column::brand");
         }
+        //cout<<sensorwaarde<<endl;
         if(inputButton)
         {
+            brand = false;
             zetZoemer(false);
+            fi->writeLog("Column::knopgedrukt: brandmelder uitgeschakeld");
         }
 
         //Format next message with object data
@@ -55,19 +60,19 @@ void Column::convertMessageToObjectAttr(char* msg)
         //Get first element of message
         char *token = strtok(msg, ",");
         uint8_t statusBits = atoi(token);
-    
+
         //Get second element of message
         token = strtok(NULL, ",");
         uint16_t analog0Bits = atoi(token);
-    
+
         //Get third element of message
         token = strtok(NULL, ",");
         uint16_t analog1Bits = atoi(token);
-    
+
         //Set variables of object
         inputButton = statusBits & 0x01;
         sensorwaarde = analog1Bits;
-        
+
     }
 
 }
@@ -91,4 +96,8 @@ void Column::zetZoemer(bool i)
 void Column::zetLed(bool i)
 {
         ledMode = i;
+}
+int Column::isBrand() const
+{
+    return brand;
 }
