@@ -1,45 +1,69 @@
 #include "Column.h"
 
-Column::Column(int Port, string Prefix, CommandLineInput* CLI, File* FI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), fi(FI){}
+Column::Column(int Port, string Prefix, CommandLineInput* CLI, std::ofstream& FI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), bestand(FI), ddd(), sensorwaarde_log(false), inputButton_log(false){}
 
 Column::~Column(){}
 
 //Behaviour
 void Column::behaviour(){
-    //Read Wemos Status
-    char readMessage[1024] = {0};
-    wm.readWemos(readMessage);
+    //while(1){
+        //Read Wemos Status
+        char readMessage[1024] = {0};
+        wm.readWemos(readMessage);
 
-    //Convert message to Object Attributes
-    convertMessageToObjectAttr(readMessage);
+        //Convert message to Object Attributes
+        convertMessageToObjectAttr(readMessage);
 
-    //Handle Command Line Commands
-    triggerCommands();
+        //Handle Command Line Commands
+        triggerCommands();
 
-    //Define behaviour of the object
-    if(sensorwaarde > 400)
-    {
-        //pl -> startFlashing();
-        zetZoemer(true);
-        brand = true;
-        fi->writeLog("Column::brand");
-    }
-    //cout<<sensorwaarde<<endl;
-    if(inputButton)
-    {
-        brand = false;
-        zetZoemer(false);
-        //pl -> stopFlashing();
-        cout << "stopping flashing" << endl;
-        fi->writeLog("Column::knopgedrukt: brandmelder uitgeschakeld");
-    }
+        //Define behaviour of the object
+        if(sensorwaarde > 530)
+        {
+            zetZoemer(true);
+            brand = true;
+            if(!sensorwaarde_log)
+            {
+                sensorwaarde_log = true;
+                bestand<<ddd<<"Column meld brand. Sensorwaarde: "<<sensorwaarde<<endl;
+            }
 
-    //Format next message with object data
-    char msg[1024] = {0};
-    sprintf(msg,"%i, ,%i\r",((zoemerMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023); /**TODO: hoe werkt dit bij zuil**/
+        }
+        else if (sensorwaarde<530)
+        {
+            if(sensorwaarde_log)
+            {
+                sensorwaarde_log = false;
+                bestand<<ddd<<"Column meld dat de brand voorbij is. Sensorwaarde: "<<sensorwaarde<<endl;
+            }
 
-    //Send data to the Wemos
-    wm.writeWemos(msg);
+        }
+        //cout<<sensorwaarde<<endl;
+        if(inputButton)
+        {
+            brand = false;
+            zetZoemer(false);
+            if(!inputButton_log)
+            {
+                inputButton_log = true;
+                bestand<<ddd<<"Column: knop ingedrukt"<<endl;
+            }
+        }
+        if(!inputButton)
+        {
+            if(inputButton_log)
+            {
+                inputButton_log = false;
+            }
+        }
+
+        //Format next message with object data
+        char msg[1024] = {0};
+        sprintf(msg,"%i, ,%i\r",((zoemerMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023); /**TODO: hoe werkt dit bij zuil**/
+
+        //Send data to the Wemos
+        wm.writeWemos(msg);
+    //}
 }
 
 //Commands
@@ -50,11 +74,11 @@ void Column::triggerCommands(){
         if(commandCompare(".buzuit")){zetZoemer(false);cli -> setExecuted();}
         if(commandCompare(".ledaan")){zetLed(true);cli -> setExecuted();}
         if(commandCompare(".leduit")){zetLed(false);cli -> setExecuted();}
-        if(commandCompare(".printvalue")){printValue();cli -> setExecuted();}
     }
 }
 
 //Basic Functions
+
 void Column::convertMessageToObjectAttr(char* msg)
 {
     if(wm.isConnected() && msg[0] != 0)
@@ -102,12 +126,4 @@ void Column::zetLed(bool i)
 int Column::isBrand() const
 {
     return brand;
-}
-
-void Column::add(piLed* piled){
-    pl = piled;
-}
-
-void Column::printValue(){
-    cout <<"BrandSensor: "<< sensorwaarde << endl;
 }

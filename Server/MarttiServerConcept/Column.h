@@ -1,7 +1,6 @@
 #include "Wemos.h"
 #include "CommandLineInput.h"
 #include "file.h"
-#include "piLed.h"
 #ifndef COLUMN_H_
 #define COLUMN_H_
 
@@ -20,21 +19,22 @@ using namespace std;
 
 class Column {
     public:
-        Column(int, string, CommandLineInput*, File* );
+        Column(int, string, CommandLineInput*, std::ofstream& );
         ~Column();
-        void zetZoemer(bool), zetLed(bool), printValue();
+        void zetZoemer(bool), zetLed(bool);
         int isBrand() const;
-        void behaviour(), add(piLed*);
+        void behaviour();
 
     private:
-        bool inputButton,gasSensor,ledMode,zoemerMode;
+        bool inputButton, inputButton_log ,gasSensor,ledMode,zoemerMode;
         int port,sensorwaarde;
+        bool sensorwaarde_log;
         int brand =false;
 
         string prefix;
         Wemos wm;
-        piLed* pl;
-        File* fi;
+        std::ofstream& bestand;
+        Datum ddd;
         CommandLineInput* cli;
         bool commandCompare(string);
         void triggerCommands(), convertMessageToObjectAttr(char*);

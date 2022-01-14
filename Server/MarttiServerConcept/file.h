@@ -1,4 +1,3 @@
-
 #ifndef FILE_H
 #define FILE_H
 #include <stdio.h>
@@ -8,14 +7,19 @@
 #include <ctime>
 #include <cstring>
 using namespace std;
-class File
+
+class Datum
 {
-    public:
-        File(string );
-        void writeLog(string);
-        int getSizeOfLog() ;
-    private:
-        string locationOfLog;
-        fstream file;
+public:
+    Datum( );
+    //void writeLog(string);
+    //int getSizeOfLog() ;
+    //static int dum= 1;
+    friend ostream& operator<<(ostream&, const Datum& );
+
+
+private:
+   // fstream file;
+    //string locationOfLog;
 };
 #endif

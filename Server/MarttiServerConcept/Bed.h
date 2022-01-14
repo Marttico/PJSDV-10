@@ -19,19 +19,19 @@ using namespace std;
 
 class Bed {
 public:
-    Bed(int, string, CommandLineInput*, File*);
+    Bed(int, string, CommandLineInput* ,  std::ofstream&);
     ~Bed();
     void zetLed(bool);
     void behaviour();
-    int InputPressure() const;
 private:
-    bool ledMode, inputButton,oldInputButton;
+    bool ledMode, inputButton;
     uint16_t inputPressure;
     uint64_t bedTimer, getMillis();
     int port;
     string prefix;
+    Datum ddd;
     Wemos wm;
-    File* fi;
+    std::ofstream& bestand;
     CommandLineInput* cli;
     bool commandCompare(string);
     void triggerCommands(),convertMessageToObjectAttr(char*);
