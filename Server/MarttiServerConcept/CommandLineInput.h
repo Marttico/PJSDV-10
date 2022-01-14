@@ -4,6 +4,7 @@
 #include <thread>
 #include <future>
 #include <chrono>
+
 #ifndef COMMANDLINEINPUT_H_
 #define COMMANDLINEINPUT_H_
 

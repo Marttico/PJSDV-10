@@ -6,39 +6,40 @@ Column::~Column(){}
 
 //Behaviour
 void Column::behaviour(){
-    //while(1){
-        //Read Wemos Status
-        char readMessage[1024] = {0};
-        wm.readWemos(readMessage);
+    //Read Wemos Status
+    char readMessage[1024] = {0};
+    wm.readWemos(readMessage);
 
-        //Convert message to Object Attributes
-        convertMessageToObjectAttr(readMessage);
+    //Convert message to Object Attributes
+    convertMessageToObjectAttr(readMessage);
 
-        //Handle Command Line Commands
-        triggerCommands();
+    //Handle Command Line Commands
+    triggerCommands();
 
-        //Define behaviour of the object
-        if(sensorwaarde > 530)
-        {
-            zetZoemer(true);
-            brand = true;
-            fi->writeLog("Column::brand");
-        }
-        //cout<<sensorwaarde<<endl;
-        if(inputButton)
-        {
-            brand = false;
-            zetZoemer(false);
-            fi->writeLog("Column::knopgedrukt: brandmelder uitgeschakeld");
-        }
+    //Define behaviour of the object
+    if(sensorwaarde > 400)
+    {
+        //pl -> startFlashing();
+        zetZoemer(true);
+        brand = true;
+        fi->writeLog("Column::brand");
+    }
+    //cout<<sensorwaarde<<endl;
+    if(inputButton)
+    {
+        brand = false;
+        zetZoemer(false);
+        //pl -> stopFlashing();
+        cout << "stopping flashing" << endl;
+        fi->writeLog("Column::knopgedrukt: brandmelder uitgeschakeld");
+    }
 
-        //Format next message with object data
-        char msg[1024] = {0};
-        sprintf(msg,"%i, ,%i\r",((zoemerMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023); /**TODO: hoe werkt dit bij zuil**/
+    //Format next message with object data
+    char msg[1024] = {0};
+    sprintf(msg,"%i, ,%i\r",((zoemerMode & 0x01) << 4) + ((ledMode & 0x01) <<5),1023); /**TODO: hoe werkt dit bij zuil**/
 
-        //Send data to the Wemos
-        wm.writeWemos(msg);
-    //}
+    //Send data to the Wemos
+    wm.writeWemos(msg);
 }
 
 //Commands
@@ -49,6 +50,7 @@ void Column::triggerCommands(){
         if(commandCompare(".buzuit")){zetZoemer(false);cli -> setExecuted();}
         if(commandCompare(".ledaan")){zetLed(true);cli -> setExecuted();}
         if(commandCompare(".leduit")){zetLed(false);cli -> setExecuted();}
+        if(commandCompare(".printvalue")){printValue();cli -> setExecuted();}
     }
 }
 
@@ -100,4 +102,12 @@ void Column::zetLed(bool i)
 int Column::isBrand() const
 {
     return brand;
+}
+
+void Column::add(piLed* piled){
+    pl = piled;
+}
+
+void Column::printValue(){
+    cout <<"BrandSensor: "<< sensorwaarde << endl;
 }

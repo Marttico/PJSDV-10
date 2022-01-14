@@ -1,6 +1,7 @@
 #include "Wemos.h"
 #include "CommandLineInput.h"
 #include "file.h"
+#include "piLed.h"
 #ifndef COLUMN_H_
 #define COLUMN_H_
 
@@ -21,9 +22,9 @@ class Column {
     public:
         Column(int, string, CommandLineInput*, File* );
         ~Column();
-        void zetZoemer(bool), zetLed(bool);
+        void zetZoemer(bool), zetLed(bool), printValue();
         int isBrand() const;
-        void behaviour();
+        void behaviour(), add(piLed*);
 
     private:
         bool inputButton,gasSensor,ledMode,zoemerMode;
@@ -32,6 +33,7 @@ class Column {
 
         string prefix;
         Wemos wm;
+        piLed* pl;
         File* fi;
         CommandLineInput* cli;
         bool commandCompare(string);
