@@ -1,6 +1,10 @@
 #include "Wemos.h"
+#include "CommandLineInput.h"
+#include "Column.h"
+
 #ifndef DOOR_H_
 #define DOOR_H_
+
 #include <chrono>
 #include <thread>
 #include <string>
@@ -16,28 +20,21 @@ using namespace std;
 
 class Door {
 public:
-    Door(int,string,string*);
+    Door(int, int, string, CommandLineInput*,  Column*);
     ~Door();
-    void zetLed(bool);
-    void zetDoorAngle(int);
-    void zetDebugButton(bool);
+    void zetLed(bool), zetDoorAngle(int), zetDebugButton(bool), zetOpenPermissie(bool);
     void behaviour();
 private:
-    bool ledMode;
-    int doorAngle;
-    bool inputButton;
-    bool oldInputButton;
-    uint64_t doortimer;
-    int port;
-    Wemos wm;
-    thread th;
+    bool ledMode,inputButton,oldInputButton,openPermissie;
+    int doorAngle,port,doorOpenTimerDelay;
+    uint64_t doortimer,ledtimer, getMillis();
     string prefix;
-    string* commandLine;
-    bool triggerCommands();
-    void convertMessageToObjectAttr(char*);
-    void commandCompare(string, void (Door::*)(bool), bool, bool*);
-    void commandCompare(string, void (Door::*)(int), int, bool*);
-    uint64_t getMillis();
+    Wemos wm;
+    CommandLineInput* cli;
+    bool commandCompare(string);
+    void triggerCommands(),convertMessageToObjectAttr(char*);
+
+    Column* cl;
 };
 
 #endif

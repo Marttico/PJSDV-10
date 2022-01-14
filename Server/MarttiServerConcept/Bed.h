@@ -1,7 +1,10 @@
 #include "Wemos.h"
+#include "CommandLineInput.h"
+#include "file.h"
 #ifndef BED_H_
 #define BED_H_
 
+#include <chrono>
 #include <thread>
 #include <string>
 #include <string.h>
@@ -9,31 +12,28 @@
 #include <stdlib.h>
 #include <functional>
 #include <sys/time.h>
+#include <iostream>
 #include <ctime>
 
 using namespace std;
 
 class Bed {
 public:
-    Bed(int,string,string*);
+    Bed(int, string, CommandLineInput*, File*);
     ~Bed();
     void zetLed(bool);
     void behaviour();
-
 private:
-    uint16_t bedTimer;
-    uint16_t getMillis();
-    bool ledMode;
-    bool inputButton;
+    bool ledMode, inputButton;
     uint16_t inputPressure;
+    uint64_t bedTimer, getMillis();
     int port;
-    Wemos wm;
-    thread th;
     string prefix;
-    string* commandLine;
-    bool triggerCommands();
-    void convertMessageToObjectAttr(char*);
-    void commandCompare(string, void (Bed::*)(bool), bool, bool*);
+    Wemos wm;
+    File* fi;
+    CommandLineInput* cli;
+    bool commandCompare(string);
+    void triggerCommands(),convertMessageToObjectAttr(char*);
 };
 
 #endif

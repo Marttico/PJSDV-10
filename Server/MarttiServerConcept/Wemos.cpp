@@ -14,7 +14,7 @@ int Wemos::writeWemos(char* msg){
 
     //Send write command to the wemos containing status data
     int returnValue = wemosServer.sendMessage(sendBuf);
-    usleep(senddelay);
+    //usleep(senddelay);
     return returnValue;
 }
 
@@ -23,12 +23,12 @@ int Wemos::readWemos(char* msg){
     //Send a read command to the wemos
     char buf[1024] = "R\r";
     wemosServer.sendMessage(buf);
-    usleep(senddelay);
+    usleep(senddelay * 2);
 
     //Read message (probably containing status of the wemos module)
     msg[0] = '\0';
     int returnValue = wemosServer.readMessage(msg);
-    usleep(senddelay);
+    //usleep(senddelay);
     return returnValue;
     
 }

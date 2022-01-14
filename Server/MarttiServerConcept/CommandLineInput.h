@@ -2,6 +2,8 @@
 #include <string.h>
 #include <iostream>
 #include <thread>
+#include <future>
+#include <chrono>
 #ifndef COMMANDLINEINPUT_H_
 #define COMMANDLINEINPUT_H_
 
@@ -14,9 +16,16 @@ public:
     ~CommandLineInput();
     void loop();
     string* getCLIaddr();
+    void clearCLI();
+    string getCLI();
+    bool getExecuted();
+    void setExecuted();
 private:
+    static string getCommandLineInput();
+    bool executed;
     string clibuffer;
-    thread th;
+    std::future<std::string> future;
+    
 };
 
 #endif
