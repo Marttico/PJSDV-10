@@ -23,8 +23,9 @@ public:
     ~Bed();
     void zetLed(bool);
     void behaviour();
+    int InputPressure() const;
 private:
-    bool ledMode, inputButton;
+    bool ledMode, inputButton,oldInputButton;
     uint16_t inputPressure;
     uint64_t bedTimer, getMillis();
     int port;

@@ -1,7 +1,7 @@
 #include "Wemos.h"
 #include "CommandLineInput.h"
 #include "Column.h"
-
+#include "Bed.h"
 #ifndef DOOR_H_
 #define DOOR_H_
 
@@ -20,9 +20,9 @@ using namespace std;
 
 class Door {
 public:
-    Door(int, int, string, CommandLineInput*,  Column*);
+    Door(int, int, string, CommandLineInput*);
     ~Door();
-    void zetLed(bool), zetDoorAngle(int), zetDebugButton(bool), zetOpenPermissie(bool);
+    void add(Column*),add(Bed*), zetLed(bool), zetDoorAngle(int), zetDebugButton(bool), zetOpenPermissie(bool);
     void behaviour();
 private:
     bool ledMode,inputButton,oldInputButton,openPermissie;
@@ -31,9 +31,10 @@ private:
     string prefix;
     Wemos wm;
     CommandLineInput* cli;
+    Bed* bed;
     bool commandCompare(string);
     void triggerCommands(),convertMessageToObjectAttr(char*);
-
+    
     Column* cl;
 };
 

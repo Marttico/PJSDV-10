@@ -1,7 +1,7 @@
 #include "Door.h"
 
-Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI,  Column* colmn):
-doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(colmn)
+Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI):
+doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(NULL),bed(NULL)
 {}
 
 Door::~Door(){}
@@ -18,6 +18,9 @@ void Door::behaviour(){
     //Handle Command Line Commands
     triggerCommands();
 
+    //Default state of LED
+    zetLed(false);
+
     //Define behaviour of the object
     //If there's a positive change in inputButton, open the door and set doortimer to the current milliseconds since epoch
     if(inputButton > oldInputButton){
@@ -31,13 +34,29 @@ void Door::behaviour(){
     if(getMillis()-doortimer > doorOpenTimerDelay && getMillis()-doortimer < doorOpenTimerDelay+1000){
         zetDoorAngle(70);
     }
+    if(getMillis()-ledtimer < doorOpenTimerDelay+2000){
+        zetLed(true);
+    }
     if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000){
         zetLed(false);
     }
 
+
     if(cl->isBrand())
     {
         zetDoorAngle(180);
+    }
+    if(!openPermissie){
+        zetDoorAngle(70);
+    }
+
+    //Check if bed is connected
+    if(bed != NULL){
+        //Get bed info
+        if(bed->InputPressure() > 600){
+            zetLed(true);
+        }
+        //cout << "Bed added" << "endl";
     }
 
     //Format next message with object data
@@ -111,6 +130,13 @@ void Door::zetLed(bool i){
     ledMode = i;
 }
 
+void Door::add(Bed* bedInput){
+    bed = bedInput;
+}
+void Door::add(Column* columnInput){
+    cl = columnInput;
+}
+
 void Door::zetDebugButton(bool i){
     inputButton = i;
 }
@@ -122,5 +148,8 @@ void Door::zetOpenPermissie(bool i){
 void Door::zetDoorAngle(int i){
     if(openPermissie){
         doorAngle = i;
+    }
+    else{
+        doorAngle = 70;
     }
 }

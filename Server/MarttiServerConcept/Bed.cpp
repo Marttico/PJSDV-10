@@ -6,37 +6,44 @@ Bed::~Bed(){}
 
 //Behaviour
 void Bed::behaviour(){
-    //while(1){
-        //Read Wemos Status
-        char readMessage[1024] = {0};
-        wm.readWemos(readMessage);
+    //Read Wemos Status
+    char readMessage[1024] = {0};
+    wm.readWemos(readMessage);
 
-        //Convert message to Object Attributes
-        convertMessageToObjectAttr(readMessage);
+    //Convert message to Object Attributes
+    convertMessageToObjectAttr(readMessage);
 
-        //Handle Command Line Commands
-        triggerCommands();
+    //Handle Command Line Commands
+    triggerCommands();
 
-        //Define behaviour of the object
-        if(inputButton){
+    //Define behaviour of the object
+    if(inputButton > oldInputButton){
+        fi->writeLog("Bed::knopgedrukt");
+        if(!ledMode){
             zetLed(true);
             bedTimer = getMillis();
-            fi->writeLog("Bed::knopgedrukt");
-        }
-
-        //The led turns off after 10000 miliseconds if the difference is bigger
-        if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
+            
+        }else{
             zetLed(false);
-            fi->writeLog("Bed::led automatisch uitgeschakeld");
+            bedTimer = 0;
         }
+    }
 
-        //Format next message with object data
-        char msg[1024] = {0};
-        sprintf(msg,"%i, ,%i\r",((ledMode & 0x01) << 4),1023);
+    //The led turns off after 10000 miliseconds if the difference is bigger
+    if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
+        zetLed(false);
+        fi->writeLog("Bed::led automatisch uitgeschakeld");
+    }
 
-        //Send data to the Wemos
-        wm.writeWemos(msg);
-    //}
+    //Format next message with object data
+    char msg[1024] = {0};
+    sprintf(msg,"%i, ,%i\r",((ledMode & 0x01) << 4),1023);
+
+    //Send data to the Wemos
+    wm.writeWemos(msg);
+
+    //Update for next frame
+    oldInputButton = inputButton;
 }
 
 //Commands
@@ -90,4 +97,8 @@ uint64_t Bed::getMillis(){
 //Object Specific Functions
 void Bed::zetLed(bool i){
     ledMode = i;
+}
+
+int Bed::InputPressure() const{
+    return inputPressure;
 }

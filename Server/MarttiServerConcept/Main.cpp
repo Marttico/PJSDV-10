@@ -16,8 +16,10 @@ int main(int argc, char const *argv[])
     CommandLineInput comml("");
     Bed bd(8080,"bd",&comml, &f);
     Column cl(8081,"cl",&comml, &f);
-    Door dr(8082,10000,"dr",&comml, &cl);
+    Door dr(8082,2000,"dr",&comml);
 
+    dr.add(&bd);
+    dr.add(&cl);
     piLed led(18);
     led.zetSpanningOpPin(false);
     int tf = 1;
