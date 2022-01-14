@@ -115,7 +115,7 @@ void loop() {
       client.print(sendBuffer);
     }
     if(buf[0] == 'W'){
-      ///Serial.println(buf);
+      //Serial.println(buf);
       char *ptr, *p;
       p = strtok(buf,",");
       p = strtok(NULL,",");
