@@ -1,6 +1,6 @@
 #include "Column.h"
 
-Column::Column(int Port, int bw, string Prefix, CommandLineInput* CLI, ofstream& Bestand): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), bestand(Bestand),ddd(),brandwaarde(bw){}
+Column::Column(int Port, int bw, string Prefix, CommandLineInput* CLI, ofstream& Bestand): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), bestand(Bestand),ddd(),brandwaarde(bw),sensorwaarde(0){}
 
 Column::~Column(){}
 

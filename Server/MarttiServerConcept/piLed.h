@@ -25,8 +25,10 @@ class piLed
         void disableLed();
         void startFlashing();
         void stopFlashing();
+        void flashingCheckThread();
     private:
         int gpioNummer;
+        thread th;
         bool flashing;
         std::future<void> future;
 };

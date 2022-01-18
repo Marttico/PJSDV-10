@@ -1,6 +1,6 @@
 #include "piLed.h"
 
-piLed::piLed(int led):gpioNummer(led)
+piLed::piLed(int led):gpioNummer(led),th(&piLed::flashingCheckThread,this)
 {
     exportPin();
 }
@@ -67,19 +67,6 @@ void piLed::disableLed(){
 void piLed::startFlashing(){
 	if(!flashing){
 		flashing = true;
-	
-
-		future = std::async(std::launch::async, [&](){
-			int counter = 0;
-			int output = 0;
-			while(flashing || output > 50){
-				output = cos((double)counter/10)*-10000+10000;
-				//cout << flashing << endl;
-				zetPWM(output,20000);
-				usleep(1000000/60);
-				counter++;
-			}
-		});
 	}
 	
 }
@@ -88,5 +75,19 @@ void piLed::stopFlashing(){
 	if(flashing){
 		disableLed();
 		flashing = false;
+	}
+}
+
+void piLed::flashingCheckThread(){
+	while(1){
+		int counter = 0;
+		int output = 0;
+		while(flashing || output > 50){
+			output = cos((double)counter/10)*-10000+10000;
+			//cout << flashing << endl;
+			zetPWM(output,20000);
+			usleep(1000000/60);
+			counter++;
+		}
 	}
 }
