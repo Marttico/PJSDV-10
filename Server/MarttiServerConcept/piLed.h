@@ -33,4 +33,4 @@ class piLed
         std::future<void> future;
 };
 
-#endif // PILED_H
+#endif // PILED_Hcl

@@ -26,7 +26,7 @@ void signalHandler(int signum)
 
 int main(int argc, char const *argv[])
 {
-   signal(SIGINT, signalHandler); //Voor ctrl + c
+    signal(SIGINT, signalHandler); //Voor ctrl + c
 
     //Create Logs
     ofstream bestand("/home/pi/Desktop/log.txt",  ios::out | ios::app);
@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     Bed    bd(8080,      "bd", &comml, bestand);
     Column cl(8081, 400, "cl", &comml, bestand);
     Door   dr(8082, 2000,"dr", &comml, bestand);
-    //Chair  ch(8083, true,"ch", &comml, bestand);
+    Chair  ch(8083, true,"ch", &comml, bestand);
     piLed  led(0);
 
 
@@ -52,7 +52,9 @@ int main(int argc, char const *argv[])
         bd.behaviour();
         cl.behaviour();
         dr.behaviour();
+        ch.behaviour();
     }
+    bestand<<"afsluiten"<<endl;
     bestand.close();
     return 0;
 }

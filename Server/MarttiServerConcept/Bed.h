@@ -24,10 +24,12 @@ public:
     void zetLed(bool);
     void behaviour();
     int InputPressure() const;
+    bool hankIsOnBed;
 private:
     bool ledMode, inputButton,oldInputButton;
     uint16_t inputPressure;
     uint64_t bedTimer, getMillis();
+    
     int port;
     string prefix;
     Wemos wm;

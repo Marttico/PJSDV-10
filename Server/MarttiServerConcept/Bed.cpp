@@ -1,6 +1,6 @@
 #include "Bed.h"
 
-Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), bestand(Bestand),ddd(){}
+Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), bestand(Bestand),ddd(), hankIsOnBed(false){}
 
 Bed::~Bed(){}
 
@@ -26,6 +26,25 @@ void Bed::behaviour(){
         }else{
             zetLed(false);
             bedTimer = 0;
+        }
+    }
+    if(inputPressure> 500)
+    {
+        if(!hankIsOnBed)
+        {
+            hankIsOnBed = true;
+            cout<<" Hank slaapt"<<endl;
+            bestand<<ddd<<prefix<<":: hank ligt op bed"<<endl;
+        }
+    }
+    if(inputPressure < 200)
+    {
+        if(hankIsOnBed)
+        {
+            hankIsOnBed = false;
+
+        cout<<" Hank staat op"<<endl;
+        bestand<<ddd<<prefix<<":: hank is opgestaan"<<endl;
         }
     }
 

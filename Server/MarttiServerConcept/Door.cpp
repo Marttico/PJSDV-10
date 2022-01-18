@@ -1,7 +1,7 @@
 #include "Door.h"
 
 Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI, ofstream& Bestand):
-doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(NULL),bed(NULL), bestand(Bestand),ddd()
+doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(NULL),bed(NULL), bestand(Bestand),ddd(), ledLogTimer(false)
 {}
 
 Door::~Door(){}
@@ -30,6 +30,7 @@ void Door::behaviour(){
         ledtimer = getMillis();
         zetDoorAngle(180);
         zetLed(true);
+        ledLogTimer = false;
     }
 
     //If the difference between the current milliseconds since epoch and doortime is larger than 20000 milliseconds, close the door
@@ -39,12 +40,20 @@ void Door::behaviour(){
 
     }
     if(getMillis()-ledtimer < doorOpenTimerDelay+2000 && !ledMode){
-        bestand << ddd << prefix << "::ledje staat aan." << endl;
-
+        if(!ledLogTimer)
+        {
+            bestand << ddd << prefix << "::ledje staat aan." << endl;
+            ledLogTimer = true;
+        }
         zetLed(true);
     }
     if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000 && !ledMode){
-        bestand << ddd << prefix << "::ledje staat uit." << endl;
+        if(ledLogTimer)
+        {
+            bestand << ddd << prefix << "::ledje staat uit." << endl;
+            ledLogTimer = false;
+        }
+       
         zetLed(false);
     }
 
@@ -155,8 +164,21 @@ void Door::zetOpenPermissie(bool i){
 void Door::zetDoorAngle(int i){
     if(openPermissie){
         doorAngle = i;
+        if(i >70)
+        {
+            if(!cl->isBrand())
+                cout<<"Deur is geopend"<<endl;
+        }
+        else if(i == 70)
+        {
+            cout<<"Deur is gesloten" <<endl;
+        }
+    }
+    else if (cl->isBrand()){
+        doorAngle = 180;
     }
     else{
         doorAngle = 70;
     }
+
 }

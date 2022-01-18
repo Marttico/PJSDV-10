@@ -1,6 +1,6 @@
 #include "Chair.h"
 
-Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true), bestand(Bestand),ddd(){}
+Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true), bestand(Bestand),ddd(), tril(false),  hankIsOnChair(false){}
 
 Chair::~Chair(){}
 
@@ -16,14 +16,32 @@ void Chair::behaviour(){
 
         //Handle Command Line Commands
         triggerCommands();
-
+        
         //Define behaviour of the object
         zetTril(inputPressure > 600);
 
         //Format next message with object data
         char msg[1024] = {0};
         sprintf(msg,"%i, ,%i\r",((trilMode & 0x01) << 5) + ((ledMode & 0x01) <<4),1023);
+    if(inputPressure> 500)
+    {
+        if(!hankIsOnChair)
+        {
+            hankIsOnChair = true;
+            cout<<" Hank zit"<<endl;
+            bestand<<ddd<<prefix<<":: hank zit op stoel"<<endl;
+        }
+    }
+    if(inputPressure < 200)
+    {
+        if(hankIsOnChair)
+        {
+            hankIsOnChair = false;
 
+        cout<<" Hank staat op van de stoel"<<endl;
+        bestand<<ddd<<prefix<<":: hank is opgestaan van de stoel"<<endl;
+        }
+    }
         //Send data to the Wemos
         wm.writeWemos(msg);
     //}
@@ -83,12 +101,18 @@ bool Chair::commandCompare(string i){
 void Chair::zetTril(bool i){
     //If the chair object is allowed to "tril", let it "tril", otherwise, do not.
     if(trilPerms){
-        trilMode = i;
-
-    }else{
-        trilMode = false;
+      
+            trilMode = i;
+            
+        }
+        else{
+           
+                trilMode = false;
+                
+            }
     }
-}
+
+
 
 void Chair::zetTrilPermissie(bool i){
     trilPerms = i;

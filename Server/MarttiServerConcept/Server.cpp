@@ -74,7 +74,7 @@ void Server::checkClient(){
         connected = 1;
     }
     if(connected){
-        cout << "New Client Connected" << endl;
+        cout << "New Client Connected on port: " << port << endl;
 
         //Set Message Timeout for sending and receiving
         if (setsockopt (new_socket, SOL_SOCKET, SO_RCVTIMEO, &messageTimeout,
@@ -116,7 +116,8 @@ int Server::sendMessage(char* msg){
 void Server::resetClient(){
     //If client has just disconnected, show status message and close socket
     if(connected){
-        perror("Client Disconnected, Reconnect the device");
+        perror("Client Disconnected, Reconnect the device on port: ");
+        cout<<port<<endl;
         close(new_socket);
         connected = 0;
     }

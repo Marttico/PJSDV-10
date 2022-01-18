@@ -1,6 +1,6 @@
 #include "Column.h"
 
-Column::Column(int Port, int bw, string Prefix, CommandLineInput* CLI, ofstream& Bestand): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), bestand(Bestand),ddd(),brandwaarde(bw),sensorwaarde(0){}
+Column::Column(int Port, int bw, string Prefix, CommandLineInput* CLI, ofstream& Bestand): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), bestand(Bestand),ddd(),brandwaarde(bw), brand(false), brandTemp(brandwaarde){}
 
 Column::~Column(){}
 
@@ -17,17 +17,30 @@ void Column::behaviour(){
     triggerCommands();
 
     //Define behaviour of the object
-    if(sensorwaarde > brandwaarde)
+    if(sensorwaarde > brandwaarde && !brand)
     {
-        if(!brand){
+        
             pl -> startFlashing();
             zetZoemer(true);
             brand = true;
             bestand << ddd << prefix << "::er is brand, het alarm gaat aan!" << endl;
             cout << "  ____  _____            _   _ _____  " << endl << " |  _ \\|  __ \\     /\\   | \\ | |  __ \\ " << endl << " | |_) | |__) |   /  \\  |  \\| | |  | |" << endl << " |  _ <|  _  /   / /\\ \\ | . ` | |  | |" << endl << " | |_) | | \\ \\  / ____ \\| |\\  | |__| |" << endl <<" |____/|_|  \\_\\/_/    \\_\\_| \\_|_____/ " << endl;
     
-        }
+        
     }
+    
+    if(sensorwaarde && brand)
+    {
+        brandTemp = brandwaarde;
+        brandwaarde = sensorwaarde;
+
+
+    }
+    if(!brand)
+    {
+        brandwaarde = brandTemp;
+    }
+
     //cout<<sensorwaarde<<endl;
     if(inputButton)
     {

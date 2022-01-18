@@ -30,6 +30,7 @@ private:
     bool ledMode,inputButton,oldInputButton,openPermissie;
     int doorAngle,port,doorOpenTimerDelay;
     uint64_t doortimer,ledtimer, getMillis();
+    bool ledLogTimer;
     string prefix;
     Wemos wm;
     ofstream& bestand;

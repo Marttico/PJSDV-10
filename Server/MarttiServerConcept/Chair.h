@@ -27,6 +27,8 @@ public:
 private:
     bool trilMode, trilPerms, ledMode, inputButton;
     int port;
+    int tril;
+    bool hankIsOnChair;
     uint16_t inputPressure;
     string prefix;
     Wemos wm;
