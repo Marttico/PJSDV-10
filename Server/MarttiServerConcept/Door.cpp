@@ -1,7 +1,7 @@
 #include "Door.h"
 
-Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI):
-doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(NULL),bed(NULL)
+Door::Door(int Port,int DoorOpenTimerDelay,string Prefix,CommandLineInput* CLI, ofstream& Bestand):
+doorOpenTimerDelay(DoorOpenTimerDelay),doorAngle(70),prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false),inputButton(false),oldInputButton(inputButton),openPermissie(true),cl(NULL),bed(NULL), bestand(Bestand),ddd()
 {}
 
 Door::~Door(){}
@@ -24,6 +24,8 @@ void Door::behaviour(){
     //Define behaviour of the object
     //If there's a positive change in inputButton, open the door and set doortimer to the current milliseconds since epoch
     if(inputButton > oldInputButton){
+        bestand << ddd << prefix << "::De deurknop is ingedrukt." << endl;
+
         doortimer = getMillis();
         ledtimer = getMillis();
         zetDoorAngle(180);
@@ -31,13 +33,18 @@ void Door::behaviour(){
     }
 
     //If the difference between the current milliseconds since epoch and doortime is larger than 20000 milliseconds, close the door
-    if(getMillis()-doortimer > doorOpenTimerDelay && getMillis()-doortimer < doorOpenTimerDelay+1000){
+    if(getMillis()-doortimer > doorOpenTimerDelay && getMillis()-doortimer < doorOpenTimerDelay+1000 && doorAngle != 70){
         zetDoorAngle(70);
+        bestand << ddd << prefix << "::deur is automatisch dicht gegaan." << endl;
+
     }
-    if(getMillis()-ledtimer < doorOpenTimerDelay+2000){
+    if(getMillis()-ledtimer < doorOpenTimerDelay+2000 && !ledMode){
+        bestand << ddd << prefix << "::ledje staat aan." << endl;
+
         zetLed(true);
     }
-    if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000){
+    if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000 && !ledMode){
+        bestand << ddd << prefix << "::ledje staat uit." << endl;
         zetLed(false);
     }
 

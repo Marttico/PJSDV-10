@@ -1,6 +1,6 @@
 #include "Wemos.h"
 #include "CommandLineInput.h"
-#include "file.h"
+#include "Datum.h"
 #ifndef BED_H_
 #define BED_H_
 
@@ -19,7 +19,7 @@ using namespace std;
 
 class Bed {
 public:
-    Bed(int, string, CommandLineInput*, File*);
+    Bed(int, string, CommandLineInput*, ofstream&);
     ~Bed();
     void zetLed(bool);
     void behaviour();
@@ -31,7 +31,8 @@ private:
     int port;
     string prefix;
     Wemos wm;
-    File* fi;
+    ofstream& bestand;
+    Datum ddd;
     CommandLineInput* cli;
     bool commandCompare(string);
     void triggerCommands(),convertMessageToObjectAttr(char*);

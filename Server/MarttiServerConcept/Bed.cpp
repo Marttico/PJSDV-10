@@ -1,6 +1,6 @@
 #include "Bed.h"
 
-Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, File* FI):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), fi(FI){}
+Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), bestand(Bestand),ddd(){}
 
 Bed::~Bed(){}
 
@@ -18,7 +18,7 @@ void Bed::behaviour(){
 
     //Define behaviour of the object
     if(inputButton > oldInputButton){
-        fi->writeLog("Bed::knopgedrukt");
+        bestand << ddd << prefix << "::knopingedrukt" << endl;
         if(!ledMode){
             zetLed(true);
             bedTimer = getMillis();
@@ -32,7 +32,7 @@ void Bed::behaviour(){
     //The led turns off after 10000 miliseconds if the difference is bigger
     if(getMillis() - bedTimer > 10000 && getMillis() - bedTimer < 11000){
         zetLed(false);
-        fi->writeLog("Bed::led automatisch uitgeschakeld");
+        bestand << ddd << prefix << "::ledtimeout" << endl;
     }
 
     //Format next message with object data

@@ -1,6 +1,6 @@
 #include "Column.h"
 
-Column::Column(int Port, string Prefix, CommandLineInput* CLI, File* FI): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), fi(FI){}
+Column::Column(int Port, int bw, string Prefix, CommandLineInput* CLI, ofstream& Bestand): cli(CLI),prefix(Prefix), ledMode(false), zoemerMode(false), port(Port), wm(Port), bestand(Bestand),ddd(),brandwaarde(bw){}
 
 Column::~Column(){}
 
@@ -17,21 +17,26 @@ void Column::behaviour(){
     triggerCommands();
 
     //Define behaviour of the object
-    if(sensorwaarde > 400)
+    if(sensorwaarde > brandwaarde)
     {
-        //pl -> startFlashing();
-        zetZoemer(true);
-        brand = true;
-        fi->writeLog("Column::brand");
+        if(!brand){
+            pl -> startFlashing();
+            zetZoemer(true);
+            brand = true;
+            bestand << ddd << prefix << "::er is brand, het alarm gaat aan!" << endl;
+            cout << "  ____  _____            _   _ _____  " << endl << " |  _ \\|  __ \\     /\\   | \\ | |  __ \\ " << endl << " | |_) | |__) |   /  \\  |  \\| | |  | |" << endl << " |  _ <|  _  /   / /\\ \\ | . ` | |  | |" << endl << " | |_) | | \\ \\  / ____ \\| |\\  | |__| |" << endl <<" |____/|_|  \\_\\/_/    \\_\\_| \\_|_____/ " << endl;
+    
+        }
     }
     //cout<<sensorwaarde<<endl;
     if(inputButton)
     {
-        brand = false;
-        zetZoemer(false);
-        //pl -> stopFlashing();
-        cout << "stopping flashing" << endl;
-        fi->writeLog("Column::knopgedrukt: brandmelder uitgeschakeld");
+        if(brand){
+            brand = false;
+            zetZoemer(false);
+            pl -> stopFlashing();
+            bestand << ddd << prefix << "::het alarm is gestopt!" << endl;
+        }
     }
 
     //Format next message with object data
@@ -109,5 +114,6 @@ void Column::add(piLed* piled){
 }
 
 void Column::printValue(){
+    bestand << ddd << prefix << "::BrandSensor: " << sensorwaarde << endl;
     cout <<"BrandSensor: "<< sensorwaarde << endl;
 }

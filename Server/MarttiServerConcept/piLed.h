@@ -26,7 +26,6 @@ class piLed
         void startFlashing();
         void stopFlashing();
     private:
-        string flashingFunc();
         int gpioNummer;
         bool flashing;
         std::future<void> future;

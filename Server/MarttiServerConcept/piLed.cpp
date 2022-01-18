@@ -2,7 +2,6 @@
 
 piLed::piLed(int led):gpioNummer(led)
 {
-	
     exportPin();
 }
 
@@ -25,6 +24,7 @@ void piLed::unexportPin()
 	fs << to_string(gpioNummer);
 	fs.close();
 }
+
 void piLed::exportPin()
 {
 	string path = "/sys/class/pwm/pwmchip0/export";
@@ -89,13 +89,4 @@ void piLed::stopFlashing(){
 		disableLed();
 		flashing = false;
 	}
-}
-string piLed::flashingFunc(){
-	int counter = 0;
-	while(flashing){
-        zetPWM(cos((double)counter/10)*-10000+10000,20000);
-        usleep(1000000/60);
-		counter++;
-    }
-	return "";
 }

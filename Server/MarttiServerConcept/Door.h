@@ -2,6 +2,8 @@
 #include "CommandLineInput.h"
 #include "Column.h"
 #include "Bed.h"
+#include "Datum.h"
+
 #ifndef DOOR_H_
 #define DOOR_H_
 
@@ -20,7 +22,7 @@ using namespace std;
 
 class Door {
 public:
-    Door(int, int, string, CommandLineInput*);
+    Door(int, int, string, CommandLineInput*, ofstream&);
     ~Door();
     void add(Column*),add(Bed*), zetLed(bool), zetDoorAngle(int), zetDebugButton(bool), zetOpenPermissie(bool);
     void behaviour();
@@ -30,6 +32,8 @@ private:
     uint64_t doortimer,ledtimer, getMillis();
     string prefix;
     Wemos wm;
+    ofstream& bestand;
+    Datum ddd;
     CommandLineInput* cli;
     Bed* bed;
     bool commandCompare(string);

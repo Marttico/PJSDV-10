@@ -1,5 +1,6 @@
 #include "Wemos.h"
 #include "CommandLineInput.h"
+#include "Datum.h"
 
 #ifndef CHAIR_H_
 #define CHAIR_H_
@@ -19,7 +20,7 @@ using namespace std;
 
 class Chair {
 public:
-    Chair(int, bool, string, CommandLineInput*);
+    Chair(int, bool, string, CommandLineInput*, ofstream&);
     ~Chair();
     void zetTril(bool), zetTrilPermissie(bool), zetLed(bool);
     void behaviour();
@@ -29,6 +30,8 @@ private:
     uint16_t inputPressure;
     string prefix;
     Wemos wm;
+    ofstream& bestand;
+    Datum ddd;
     CommandLineInput* cli;
     bool triggerCommands(), commandCompare(string);
     void convertMessageToObjectAttr(char*);

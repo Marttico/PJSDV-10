@@ -1,6 +1,6 @@
 #include "Chair.h"
 
-Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true){}
+Chair::Chair(int Port,bool TrilPerms,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),trilMode(true),trilPerms(TrilPerms),ledMode(true), bestand(Bestand),ddd(){}
 
 Chair::~Chair(){}
 
