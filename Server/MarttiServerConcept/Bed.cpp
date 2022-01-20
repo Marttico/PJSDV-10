@@ -1,6 +1,6 @@
 #include "Bed.h"
 
-Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), bestand(Bestand),ddd(), hankIsOnBed(false){}
+Bed::Bed(int Port,string Prefix,CommandLineInput* CLI, ofstream& Bestand):prefix(Prefix),cli(CLI),port(Port),wm(Port),ledMode(false), bestand(Bestand),ddd(),inputPressure(0), hankIsOnBed(false){}
 
 Bed::~Bed(){}
 
