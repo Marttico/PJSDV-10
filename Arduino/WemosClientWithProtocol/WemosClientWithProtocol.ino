@@ -1,11 +1,4 @@
-/*
-  ESP8266 Blink by Simon Peter
-  Blink the blue LED on the ESP-01 module
-  This example code is in the public domain
-  The blue LED on the ESP-01 module is connected to GPIO1
-  (which is also the TXD pin; so we cannot use Serial.print() at the same time)
-  Note that this sketch uses LED_BUILTIN to find the pin with the internal LED
-*/
+
 #include <ESP8266WiFi.h>
 #include <Wire.h>
 #include<string.h>
@@ -34,13 +27,6 @@ WiFiClient client;
 
 void setup() {
   Serial.begin(115200);
-  //Receive EEPROM value
-  /*int eepraddr = (EEPROM.read(PORTEEPROMADDR) << 8) + EEPROM.read(PORTEEPROMADDR + 1);
-  if(eepraddr <= 8090 && eepraddr >= 8080){
-      port = eepraddr;
-  }*/
- 
-  //tone(14,1000);
   Wire.begin();
   pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
   writeOutput(255);
