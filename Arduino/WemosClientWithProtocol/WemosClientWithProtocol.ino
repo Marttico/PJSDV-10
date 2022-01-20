@@ -12,17 +12,17 @@
 #define I2C_SDL    D1
 #define I2C_SDA    D2
 
-char ssid[] = "PiCo";     //  your network SSID (name)
-char pass[] = "13371337";  // your network password
-int status = WL_IDLE_STATUS;     // the Wifi radio's status
+char ssid[] = "PiCo";                 //  your network SSID (name)
+char pass[] = "13371337";             // your network password
+int status = WL_IDLE_STATUS;          // the Wifi radio's status
 uint8_t ledValue = 0x00;
 
-Servo myservo;
+Servo myservo;    // Create servo
 int servotimer;
-const char* host = "192.168.2.1";
-int port = 8082;
+const char* host = "192.168.2.1";     //Set server ip (this stays the same
+int port = 8082;                      //Set default port (will be configured later)
 
-WiFiClient client;
+WiFiClient client;                    //Create client object
 
 
 void setup() {
@@ -55,6 +55,7 @@ void setup() {
   int newport = 0;
   char SerialBuf[64] = {0};
   int index = 0;
+  //Wait for port assignment
   while(newport == 0){
     Serial.println("Enter your port: ");
     delay(500);
@@ -66,7 +67,7 @@ void setup() {
     }
     SerialBuf[index] = 0;
   }
-
+  
   port = atoi(SerialBuf);
   Serial.print("Your specified port is ");
   Serial.println(port);
@@ -93,34 +94,39 @@ void loop() {
       index++;
     }
     buf[index] = '\0';
-    
+    //If message is a read message
     if(buf[0] == 'R'){
-      //Serial.println(buf);
+      //Send status of wemos to server
       char sendBuffer[1024] = {0};
       sprintf(sendBuffer,"%i,%i,%i",readOutput(),readAnalog(0),readAnalog(1));
       client.print(sendBuffer);
     }
+    
+    //If message is a write message
     if(buf[0] == 'W'){
-      //Serial.println(buf);
       char *ptr, *p;
+      //Get elements of buf (',' as seperator)
       p = strtok(buf,",");
+      //Get second element
       p = strtok(NULL,",");
       uint8_t first = strtol(p,&ptr,10);
       writeOutput(first);
+      //Get third element
       p = strtok(NULL,",");
       char D5mode = p[0];
+      //Get fourth element
       p = strtok(NULL,",");
       //Serial.println(p);
       uint16_t second = strtol(p,&ptr,10);
-
+      
+      //If D5mode is 'S', attach servo
       if(D5mode == 'S'){
         if(!myservo.attached()){
           myservo.attach(14);
         }
-        //Serial.println(second);
         myservo.write(int(second));
       }
-
+      //If D5mode is 'Z', detach servo
       if(D5mode == 'Z'){
         if(myservo.attached()){
           myservo.detach();
@@ -134,7 +140,7 @@ void loop() {
   delay(2000);
 }
 
-
+//Write to Two Wire Interface
 void writeOutput(uint8_t input){
     Wire.beginTransmission(0x38); 
     Wire.write(byte(0x01));
@@ -142,6 +148,7 @@ void writeOutput(uint8_t input){
     Wire.endTransmission();
 }
 
+//Read from Two Wire Interface
 uint8_t readOutput(){
     Wire.beginTransmission(0x38); 
     Wire.write(byte(0x00));      
@@ -151,6 +158,7 @@ uint8_t readOutput(){
     return inputs;
 }
 
+//Read Analog from Two Wire Interface
 uint16_t readAnalog(int slot){
     //Read analog 10bit inputs 0&1
     Wire.requestFrom(0x36, 4);   
@@ -167,6 +175,8 @@ uint16_t readAnalog(int slot){
       return anin1;
     }
 }
+
+//Set data direction register of Two Wire Interface slave
 void hotPluggableFunction(){
     Wire.beginTransmission(0x38);
     Wire.write(byte(0x03));          
