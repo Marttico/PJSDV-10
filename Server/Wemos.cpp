@@ -10,16 +10,15 @@ Wemos::~Wemos(){
 
 int Wemos::writeWemos(char* msg){
     char sendBuf[1024] = "W,";
+    //Add message character array to sendBuf
     strcat(sendBuf,msg);
 
     //Send write command to the wemos containing status data
     int returnValue = wemosServer.sendMessage(sendBuf);
-    //usleep(senddelay);
     return returnValue;
 }
 
 int Wemos::readWemos(char* msg){
-
     //Send a read command to the wemos
     char buf[1024] = "R\r";
     wemosServer.sendMessage(buf);
@@ -30,9 +29,9 @@ int Wemos::readWemos(char* msg){
     int returnValue = wemosServer.readMessage(msg);
     //usleep(senddelay);
     return returnValue;
-    
 }
 
+//Return whether the Wemos is connected
 bool Wemos::isConnected() const{
     return wemosServer.isConnected();
 }

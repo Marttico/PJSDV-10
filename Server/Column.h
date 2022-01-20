@@ -28,10 +28,7 @@ class Column {
 
     private:
         bool inputButton,gasSensor,ledMode,zoemerMode;
-        int port,sensorwaarde;
-        int brand;
-        int brandwaarde;
-        int brandTemp;
+        int port,sensorwaarde,brand,brandwaarde,brandTemp;
         string prefix;
         Wemos wm;
         piLed* pl;

@@ -22,92 +22,105 @@ void Door::behaviour(){
     zetLed(false);
 
     //Define behaviour of the object
-    //If there's a positive change in inputButton, open the door and set doortimer to the current milliseconds since epoch
+    //Detect positive change in inputButton
     if(inputButton > oldInputButton){
+        //Write "::De deurknop is ingedrukt." in log
         bestand << ddd << prefix << "::De deurknop is ingedrukt." << endl;
 
+        //Set doortimer to current epoch time
         doortimer = getMillis();
+        //Set ledtimer to current epoch time
         ledtimer = getMillis();
+        //Attempt to open door (180 degrees = opened)
         zetDoorAngle(180);
+        //Turn on LED
         zetLed(true);
         ledLogTimer = false;
     }
 
-    //If the difference between the current milliseconds since epoch and doortime is larger than 20000 milliseconds, close the door
+    //If the difference between the current milliseconds since epoch and doortime is larger than the specified doorOpenTimerDelay + 1000 milliseconds, close the door
     if(getMillis()-doortimer > doorOpenTimerDelay && getMillis()-doortimer < doorOpenTimerDelay+1000 && doorAngle != 70){
+        //Attempt to close door (70 degrees = closed)
         zetDoorAngle(70);
+        //Write "::deur is automatisch dicht gegaan." in log
         bestand << ddd << prefix << "::deur is automatisch dicht gegaan." << endl;
 
     }
+
+    //If the difference between the current milliseconds since epoch and ledtimer is larger than the specified doorOpenTimerDelay + 2000 milliseconds, close the door
     if(getMillis()-ledtimer < doorOpenTimerDelay+2000 && !ledMode){
         if(!ledLogTimer)
         {
+            //Write "::ledje staat aan." in log
             bestand << ddd << prefix << "::ledje staat aan." << endl;
             ledLogTimer = true;
         }
         zetLed(true);
     }
+    
+    //If the difference between the current milliseconds since epoch and ledtimer is between the specified doorOpenTimerDelay + 2000 milliseconds and doorOpenTimerDelay + 3000, close the door
     if(getMillis()-ledtimer > doorOpenTimerDelay+2000 && getMillis()-ledtimer < doorOpenTimerDelay+3000 && !ledMode){
         if(ledLogTimer)
         {
             bestand << ddd << prefix << "::ledje staat uit." << endl;
             ledLogTimer = false;
         }
-       
+        //Turn off LED
         zetLed(false);
     }
 
 
     if(cl->isBrand())
     {
+        //Attempt to open door
         zetDoorAngle(180);
     }
     if(!openPermissie){
+        //Attempt to close door
         zetDoorAngle(70);
     }
 
     //Check if bed is connected
     if(bed != NULL){
         //Get bed info
+        //Detect bed inputPressure
         if(bed->InputPressure() > 600){
+            //Turn LED on
             zetLed(true);
         }
-        //cout << "Bed added" << "endl";
     }
 
     //Format next message with object data
     char msg[1024] = {0};
     //The S flag tells the wemos there's a servo connected
     sprintf(msg,"%i,S,%i\r",((ledMode & 0x01) <<4),doorAngle);
-    oldInputButton = inputButton;
+
     //Send data to the Wemos
     wm.writeWemos(msg);
+
+    //Update old variables for next cycle
+    oldInputButton = inputButton;
 }
 
 //Commands
 void Door::triggerCommands(){
+    //Check whether the latest command in the commandline has already been executed
     if(!(cli -> getExecuted())){
-        //Wait for CLI to not be busy
-        //Put commands below. The format is as follows commandCompare("<insert command here>",&Chair::<insertFunctionHere>,<insertValueIfCommandIsMet>,&executed);
+        //Syntax: if(commandCompare(".<Insert Command here>")){<Insert Function here>;cli -> setExecuted();}
+        //This will trigger the specified function when the command is detected.
         if(commandCompare(".ledaan")){zetLed(true);cli -> setExecuted();}
         if(commandCompare(".leduit")){zetLed(false);cli -> setExecuted();}
-
         if(commandCompare(".permaan")){zetOpenPermissie(true);cli -> setExecuted();}
         if(commandCompare(".permuit")){zetOpenPermissie(false);cli -> setExecuted();}
-
-
-
         if(commandCompare(".pushbutton")){zetDebugButton(true);cli -> setExecuted();}
-
         if(commandCompare(".opendoor")){zetDoorAngle(180);cli -> setExecuted();}
         if(commandCompare(".closedoor")){zetDoorAngle(70);cli -> setExecuted();}
-        //commandCompare(".opendoor", &Door::zetDoorAngle,1000,&executed);
-        //commandCompare(".closedoor", &Door::zetDoorAngle,2000,&executed);
     }
 }
 
 //Basic Functions
 void Door::convertMessageToObjectAttr(char* msg){
+    //Check if this object is connected. Since we're unable to read messages if there's nothing to read from...
     if(wm.isConnected() && msg[0] != 0){
 
         //Get first element of message
@@ -138,46 +151,63 @@ bool Door::commandCompare(string i){
 }
 
 uint64_t Door::getMillis(){
+    //Return milliseconds since Epoch (1 Jan 1970)
     return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 //Object Specific Functions
 void Door::zetLed(bool i){
+    //Change private variable to argument
     ledMode = i;
 }
 
+//Add relationship between Door and Bed
 void Door::add(Bed* bedInput){
+    //Assign pointer bed the address of the argument bedInput
     bed = bedInput;
 }
+
+//Add relationship between Door and Column
 void Door::add(Column* columnInput){
+    //Assign pointer cl the address of the argument columnInput
     cl = columnInput;
 }
 
 void Door::zetDebugButton(bool i){
+    //Change private variable to argument
     inputButton = i;
 }
 
 void Door::zetOpenPermissie(bool i){
+    //Change private variable to argument
     openPermissie = i;
 }
 
 void Door::zetDoorAngle(int i){
+    //Check if the door is allowed to open
     if(openPermissie){
+        //Change private variable to argument
         doorAngle = i;
+        //if i is bigger than 70, and there is no fire, print "Deur is geopend" in console
         if(i >70)
         {
             if(!cl->isBrand())
                 cout<<"Deur is geopend"<<endl;
         }
+        //if i is = 70, and there is no fire, print "Deur is gesloten" in console
         else if(i == 70)
         {
             cout<<"Deur is gesloten" <<endl;
         }
     }
+    //Check if there is a fire detected
     else if (cl->isBrand()){
+        //Open door
         doorAngle = 180;
     }
+    //If the door is not allowed to open and there is no fire, close the door.
     else{
+        //Close door
         doorAngle = 70;
     }
 

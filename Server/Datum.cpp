@@ -2,11 +2,9 @@
 
 
 
-Datum::Datum()//: locationOfLog(location)
-{
-        //  locationOfLog(location);
-}
+Datum::Datum(){}
 
+//Return current date and time
 std::ostream& operator<<(std::ostream& s, const Datum& ds)
 {
     time_t now = time(0);
@@ -16,5 +14,4 @@ std::ostream& operator<<(std::ostream& s, const Datum& ds)
 
     s<<dt<<":::";
     return s;
-
 }

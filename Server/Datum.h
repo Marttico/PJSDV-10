@@ -13,15 +13,7 @@ using namespace std;
 class Datum
 {
 public:
-    Datum( );
-    //void writeLog(string);
-    //int getSizeOfLog() ;
-    //static int dum= 1;
+    Datum();
     friend ostream& operator<<(ostream&, const Datum& );
-
-
-private:
-   // fstream file;
-    //string locationOfLog;
 };
 #endif
