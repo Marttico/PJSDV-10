@@ -32,16 +32,16 @@ void Column::behaviour(){
     }
     
 
-    if(sensorwaarde && brand)
+    if(sensorwaarde && brand) //als er brand is
     {
-        brandTemp = brandwaarde;
-        brandwaarde = sensorwaarde;
+        brandTemp = brandwaarde; //sla huidige trigger waarde op
+        brandwaarde = sensorwaarde; //pas de triggerwaarde aan op de huidge waarde. Hierdoor gaat het brandalarm niet meer af als de knop wordt ingedrukt, maar de brandsensor nog rook meld
 
 
     }
     if(!brand)
     {
-        brandwaarde = brandTemp;
+        brandwaarde = brandTemp; //zet de triggerwaarde weer terug
     }
 
     //Detect whether the button on the Column has been pushed
